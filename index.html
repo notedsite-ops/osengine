@@ -108,6 +108,19 @@
             font-size: 13px;
             color: #5f6368;
         }
+        
+        .info {
+            margin-top: 25px;
+            font-size: 12px;
+            color: #333;
+            max-width: 400px;
+            line-height: 1.5;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            display: inline-block;
+        }
 
         /* --- RESULTS STATE (Triggered by JS) --- */
         body.results-mode #app {
@@ -143,6 +156,8 @@
             margin-top: 0;
             margin-left: 20px;
         }
+        
+        body.results-mode .info { display: none; }
 
         /* --- RESULTS LIST --- */
         #resultsArea {
@@ -313,7 +328,7 @@
 
     <script>
         // --- YOUR NEW GAS URL ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbwDCQd2uhO2_gIwbUS3kEbfoYmVMH9AUmsrbUoe1fRDbvITLBJMEyDldp0QjGizblol3Q/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbz0isEi2gWkl2tJX_7qdj4GWlFID-zbI8rA2VFLuoHJbnzBYBfrd8T7shJfV426Wtb6Zw/exec";
 
         // Filter Blocklist
         const BLOCKLIST = [
@@ -384,6 +399,12 @@
                     // Render
                     data.forEach((item, index) => {
                         const domain = new URL(item.url).hostname;
+                        
+                        // USE TITLE FROM DB IF AVAILABLE
+                        const displayTitle = item.title ? item.title : item.url;
+                        // IF TITLE IS FROM DB, DON'T SHOW "LOADING" IN SNIPPET (Unless we want snippet text)
+                        const snippetText = item.title ? "surveying the landing site..." : "surveying the landing site...";
+
                         const div = document.createElement('div');
                         div.className = 'res-item';
                         div.id = `res-${index}`;
@@ -393,13 +414,13 @@
                                 <span style="color:#5f6368">•</span>
                                 <span class="res-clicks">${item.clicks} clicks</span>
                             </div>
-                            <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${item.url}</a>
-                            <div class="res-snippet">surveying the landing site...</div>
+                            <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${displayTitle}</a>
+                            <div class="res-snippet">${snippetText}</div>
                         `;
                         area.appendChild(div);
 
-                        // Lazy load metadata
-                        fetchMetadata(item.url, index);
+                        // Lazy load metadata (snippet text, and title if missing)
+                        fetchMetadata(item.url, index, !!item.title);
                     });
                 })
                 .catch(err => {
@@ -409,17 +430,23 @@
         }
 
         // --- METADATA PROXY ---
-        function fetchMetadata(url, index) {
+        function fetchMetadata(url, index, hasTitle) {
             fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`)
                 .then(r => r.json())
                 .then(meta => {
                     const el = document.getElementById(`res-${index}`);
-                    if (el && meta.title && meta.title !== "Site Unreachable") {
-                        el.querySelector('.res-title').innerText = meta.title;
-                        el.querySelector('.res-snippet').innerText = meta.snippet;
+                    if (el) {
+                        // Only update title if we didn't have one from DB
+                        if (!hasTitle && meta.title && meta.title !== "Site Unreachable") {
+                            el.querySelector('.res-title').innerText = meta.title;
+                        }
+                        // Always try to update snippet
+                        if (meta.snippet) {
+                            el.querySelector('.res-snippet').innerText = meta.snippet;
+                        }
                     }
                 })
-                .catch(e => {}); // Silent fail on meta
+                .catch(e => {}); 
         }
 
         // --- ACTIONS (POST with text/plain to Fix CORS) ---
