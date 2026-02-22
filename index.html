@@ -4,74 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenSearch</title>
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #000;
-            --link-color: #1a0dab;
-            --url-color: #006621;
-            --bg-color: #fff;
-            --gray: #dfe1e5;
+            --link-blue: #1a0dab;
+            --url-green: #006621;
+            --text-gray: #4d5156;
+            --bg-color: #ffffff;
+            --border-color: #dfe1e5;
         }
 
         body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* --- BLACK TOP BAR --- */
+        /* --- BLACK TOP NAV --- */
         .topbar {
             background-color: #000;
-            color: #fff;
-            height: 30px;
+            height: 35px;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding: 0 20px;
-            font-size: 13px;
+            padding-right: 20px;
+            box-sizing: border-box;
             position: fixed;
-            width: 100%;
             top: 0;
             z-index: 1000;
-            box-sizing: border-box;
         }
 
         .top-btn {
             background: transparent;
             border: none;
             color: #fff;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
+            opacity: 0.9;
         }
-        .top-btn:hover { opacity: 1; }
+        .top-btn:hover { opacity: 1; text-decoration: underline; }
 
-        /* --- MAIN LAYOUT (State: Home) --- */
+        /* --- MAIN APP CONTAINER --- */
         #app {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Horizontally Center */
-            justify-content: center; /* Vertically Center */
-            margin-top: 30px; /* Offset for topbar */
-            min-height: calc(100vh - 30px);
+            align-items: center;
+            justify-content: center;
+            margin-top: 35px; /* Offset for topbar */
+            min-height: calc(100vh - 35px);
             transition: all 0.3s ease;
         }
 
-        /* Logo */
+        /* --- HOME STATE --- */
         #logo {
-            max-width: 300px;
+            max-width: 272px;
             height: auto;
-            margin-bottom: 20px;
-            display: block;
+            margin-bottom: 25px;
+            cursor: pointer;
         }
 
-        /* Search Container */
         .search-wrapper {
             width: 584px;
             max-width: 90%;
@@ -81,43 +79,41 @@
         .search-box {
             display: flex;
             align-items: center;
-            border: 1px solid var(--gray);
+            border: 1px solid var(--border-color);
             border-radius: 24px;
-            padding: 0 15px;
-            height: 44px;
+            padding: 10px 15px;
             background: #fff;
-            transition: box-shadow 0.2s;
+            height: 24px; /* visual height matches google */
         }
-
         .search-box:hover, .search-box:focus-within {
             box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+            border-color: rgba(223,225,229,0);
         }
 
         .search-box input {
-            flex: 1;
             border: none;
             outline: none;
+            flex: 1;
             font-size: 16px;
             margin-left: 10px;
         }
 
-        /* Controls (Slider) */
+        /* Slider Controls */
         .controls {
-            margin-top: 15px;
+            margin-top: 18px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
             font-size: 13px;
-            color: #555;
+            color: #5f6368;
         }
 
-        /* --- LAYOUT (State: Results) --- */
+        /* --- RESULTS STATE (Triggered by JS) --- */
         body.results-mode #app {
             justify-content: flex-start;
             align-items: flex-start;
             padding-top: 25px;
-            min-height: auto;
         }
 
         body.results-mode .search-wrapper {
@@ -136,12 +132,11 @@
             width: auto;
             margin-bottom: 0;
             margin-right: 25px;
-            cursor: pointer;
         }
 
         body.results-mode .search-box {
             width: 600px;
-            height: 40px;
+            height: 24px;
         }
 
         body.results-mode .controls {
@@ -150,97 +145,98 @@
         }
 
         /* --- RESULTS LIST --- */
-        #results {
-            padding-left: 150px; /* Classic search engine indent */
+        #resultsArea {
+            display: none;
+            padding-left: 165px; /* Classic indent */
             padding-top: 20px;
             padding-bottom: 50px;
             max-width: 650px;
-            display: none; /* Hidden on home */
         }
-        
-        body.results-mode #results { display: block; }
+        body.results-mode #resultsArea { display: block; }
 
         @media(max-width: 800px) {
-            body.results-mode .search-wrapper { flex-direction: column; align-items: flex-start; gap: 10px; }
-            #results { padding-left: 20px; padding-right: 20px; }
+            body.results-mode .search-wrapper { flex-direction: column; align-items: flex-start; gap: 15px; }
+            #resultsArea { padding-left: 20px; padding-right: 20px; }
         }
 
-        .res-item { margin-bottom: 25px; }
+        .res-item { margin-bottom: 26px; }
         
-        .res-url {
-            color: var(--url-color);
-            font-size: 12px;
-            margin-bottom: 2px;
+        .res-url-row {
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 12px;
+            color: #202124;
+            margin-bottom: 4px;
         }
         
-        .click-badge {
-            background: #f1f3f4;
-            color: #333;
-            font-size: 10px;
-            padding: 1px 4px;
-            border-radius: 2px;
-            border: 1px solid #ddd;
+        .res-site-name { font-weight: bold; color: #202124; }
+        .res-clicks { 
+            background: #f1f3f4; 
+            color: #444; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 11px;
         }
 
         .res-title {
-            color: var(--link-color);
+            color: var(--link-blue);
             font-size: 20px;
             text-decoration: none;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            line-height: 1.3;
         }
         .res-title:hover { text-decoration: underline; }
 
         .res-snippet {
-            color: #4d5156;
+            color: var(--text-gray);
             font-size: 14px;
             line-height: 1.58;
         }
 
-        /* --- MODAL --- */
-        #addModal {
+        /* --- ADD PAGE MODAL --- */
+        #modalOverlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
             z-index: 2000;
             align-items: center;
             justify-content: center;
         }
         .modal-box {
             background: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            padding: 25px;
-            width: 400px;
+            border: 1px solid #dadce0;
             border-radius: 8px;
+            padding: 30px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(32,33,36,0.28);
             text-align: center;
         }
         .modal-box input {
-            width: 90%;
+            width: 100%;
             padding: 10px;
-            margin: 15px 0;
-            border: 1px solid #ddd;
+            margin: 20px 0;
+            box-sizing: border-box;
+            border: 1px solid #dadce0;
             border-radius: 4px;
         }
         .modal-btn {
             padding: 8px 16px;
-            cursor: pointer;
             border-radius: 4px;
-            border: none;
             font-weight: bold;
+            cursor: pointer;
+            border: none;
         }
-        .btn-cancel { background: #f1f3f4; color: #333; margin-right: 10px; }
-        .btn-submit { background: #1a73e8; color: #fff; }
+        .btn-cancel { background: transparent; color: #1a73e8; margin-right: 10px; }
+        .btn-save { background: #1a73e8; color: white; }
 
-        /* --- CUSTOM TOAST ALERT --- */
+        /* --- TOAST NOTIFICATION --- */
         #toast {
             visibility: hidden;
             min-width: 250px;
-            background-color: #333;
+            background-color: #202124;
             color: #fff;
             text-align: center;
             border-radius: 4px;
@@ -251,257 +247,217 @@
             bottom: 30px;
             transform: translateX(-50%);
             font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
         }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- SLIDER TOGGLE --- */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 20px;
-        }
+        /* --- TOGGLE SWITCH --- */
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: #2196F3; }
-        input:checked + .slider:before { transform: translateX(14px); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #1a73e8; }
+        input:checked + .slider:before { transform: translateX(16px); }
 
     </style>
 </head>
 <body>
 
-    <!-- Black Top Bar -->
-    <nav class="topbar">
-        <button class="top-btn" onclick="openModal()">+ Add Page</button>
-    </nav>
+    <!-- NAV -->
+    <div class="topbar">
+        <button class="top-btn" onclick="toggleModal(true)">add page</button>
+    </div>
 
-    <!-- App Container -->
+    <!-- APP -->
     <div id="app">
-        
-        <!-- Logo -->
         <img src="os.png" alt="OpenSearch" id="logo" onclick="resetHome()">
-
-        <!-- Search Area -->
+        
         <div class="search-wrapper">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass" style="color:#9aa0a6;"></i>
-                <input type="text" id="queryInput" placeholder="Search community..." onkeydown="if(event.key==='Enter') doSearch()">
+                <input type="text" id="searchInput" placeholder="search openweb..." onkeydown="if(event.key==='Enter') performSearch()">
             </div>
 
             <div class="controls">
-                <span>Top Clicks</span>
+                <span>sort by clicks</span>
                 <label class="switch">
-                    <input type="checkbox" id="sortToggle" onchange="if(document.body.classList.contains('results-mode')) doSearch()">
+                    <input type="checkbox" id="sortClicks" onchange="if(document.body.classList.contains('results-mode')) performSearch()">
                     <span class="slider"></span>
                 </label>
             </div>
+
+            <div class="info">
+                <p class="text">opensearch is powered by YOU! search without cranking up the freaking ram prices. i speak for all of us when i say <bold>EVERYONE</bold> would like that.</p>
+            </div>
         </div>
 
-        <!-- Results List -->
-        <div id="results"></div>
-
+        <div id="resultsArea"></div>
     </div>
 
-    <!-- Modal -->
-    <div id="addModal">
+    <!-- ADD MODAL -->
+    <div id="modalOverlay">
         <div class="modal-box">
-            <h3 style="margin:0;">Add to Index</h3>
-            <p style="font-size:12px; color:#666;">Enter a valid URL to add to the community drive.</p>
-            <input type="text" id="newUrl" placeholder="https://...">
+            <h3>Add URL to Index</h3>
+            <p style="color:#666; font-size:13px;">Help grow the community database.</p>
+            <input type="text" id="newUrlInput" placeholder="https://example.com">
             <div>
-                <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
-                <button class="modal-btn btn-submit" onclick="submitPage()">Add Page</button>
+                <button class="modal-btn btn-cancel" onclick="toggleModal(false)">Cancel</button>
+                <button class="modal-btn btn-save" onclick="submitPage()">Add Page</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast">Notification</div>
+    <!-- TOAST -->
+    <div id="toast">Message</div>
 
     <script>
-        // CONFIG
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby6J_8mE5QcRbL6YoEKI1Tcz0gu3SlWWfMRN8JhTJ7OGsJV22C8qx-kVUyZE88u_W6f/exec";
-        
+        // --- YOUR NEW GAS URL ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbwDCQd2uhO2_gIwbUS3kEbfoYmVMH9AUmsrbUoe1fRDbvITLBJMEyDldp0QjGizblol3Q/exec";
+
+        // Filter Blocklist
         const BLOCKLIST = [
             "openai", "chatgpt", "anthropic", "claude", "midjourney", 
-            "google.com", "bing.com", "facebook.com", "amazon.com", "gemini"
+            "google.com", "bing.com", "facebook.com", "gemini"
         ];
 
-        // --- INIT ---
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            if(params.get('q')) {
-                document.getElementById('queryInput').value = params.get('q');
-                doSearch(params.get('q'));
+        // Init
+        window.onload = function() {
+            const q = new URLSearchParams(window.location.search).get('q');
+            if (q) {
+                document.getElementById('searchInput').value = q;
+                performSearch(q);
             }
         };
 
         function resetHome() {
             document.body.classList.remove('results-mode');
-            document.getElementById('results').innerHTML = '';
-            document.getElementById('queryInput').value = '';
+            document.getElementById('resultsArea').innerHTML = '';
+            document.getElementById('searchInput').value = '';
             window.history.pushState({}, '', window.location.pathname);
         }
 
-        // --- UI ACTIONS ---
-        function showToast(message) {
+        function toggleModal(show) {
+            document.getElementById('modalOverlay').style.display = show ? 'flex' : 'none';
+            if(show) document.getElementById('newUrlInput').focus();
+        }
+
+        function toast(msg) {
             const t = document.getElementById("toast");
-            t.innerText = message;
+            t.innerText = msg;
             t.className = "show";
             setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
         }
 
-        function openModal() {
-            document.getElementById('addModal').style.display = 'flex';
-            document.getElementById('newUrl').focus();
-        }
+        // --- SEARCH LOGIC ---
+        function performSearch(forcedQuery = null) {
+            const query = forcedQuery || document.getElementById('searchInput').value;
+            if (!query.trim()) return;
 
-        function closeModal() {
-            document.getElementById('addModal').style.display = 'none';
-        }
-
-        // --- SEARCH ENGINE ---
-        function doSearch(forcedQuery = null) {
-            const query = forcedQuery || document.getElementById('queryInput').value;
-            if(!query.trim()) return;
-
-            // Switch to results view
+            // UI Switch
             document.body.classList.add('results-mode');
-            
-            // Update URL
             const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
             window.history.pushState({path:newUrl}, '', newUrl);
 
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = '<div style="color:#777; margin-top:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+            const area = document.getElementById('resultsArea');
+            area.innerHTML = '<div style="color:#70757a; padding-top:20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> searching...</div>';
 
-            fetchResults(query);
-        }
+            // Fetch
+            fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    // Filter
+                    data = data.filter(item => !BLOCKLIST.some(b => item.url.toLowerCase().includes(b)));
 
-        async function fetchResults(query) {
-            const resDiv = document.getElementById('results');
-            
-            try {
-                // 1. Fetch
-                const response = await fetch(`${GAS_URL}?action=search&q=${encodeURIComponent(query)}`);
-                let data = await response.json();
-
-                // 2. Filter Blocklist
-                data = data.filter(item => !BLOCKLIST.some(b => item.url.toLowerCase().includes(b)));
-
-                // 3. Sort
-                if(document.getElementById('sortToggle').checked) {
-                    data.sort((a,b) => b.clicks - a.clicks);
-                }
-
-                resDiv.innerHTML = '';
-
-                if(data.length === 0) {
-                    resDiv.innerHTML = '<p>No results found. <a href="#" onclick="openModal()">Add this page?</a></p>';
-                    return;
-                }
-
-                // 4. Render
-                data.forEach((item, idx) => {
-                    const host = new URL(item.url).hostname;
-                    
-                    const div = document.createElement('div');
-                    div.className = 'res-item';
-                    div.id = `r-${idx}`;
-                    div.innerHTML = `
-                        <div class="res-url">
-                            <i class="fa-regular fa-file"></i> ${host}
-                            <span class="click-badge">${item.clicks} Clicks</span>
-                        </div>
-                        <a href="${item.url}" class="res-title" target="_blank" onclick="track('${item.url}')">
-                            ${item.url}
-                        </a>
-                        <div class="res-snippet">
-                            <span style="color:#ccc">Loading text...</span>
-                        </div>
-                    `;
-                    resDiv.appendChild(div);
-                    
-                    // Lazy load meta
-                    getMeta(item.url, idx);
-                });
-
-            } catch(e) {
-                console.error(e);
-                resDiv.innerHTML = '<p style="color:red">Connection Error. Check GAS Script.</p>';
-            }
-        }
-
-        async function getMeta(url, idx) {
-            try {
-                const res = await fetch(`${GAS_URL}?action=metadata&url=${encodeURIComponent(url)}`);
-                const meta = await res.json();
-                
-                const el = document.getElementById(`r-${idx}`);
-                if(el) {
-                    if(meta.title && meta.title !== "Site Unreachable") {
-                        el.querySelector('.res-title').innerText = meta.title;
+                    // Sort
+                    if(document.getElementById('sortClicks').checked) {
+                        data.sort((a,b) => b.clicks - a.clicks);
                     }
-                    if(meta.snippet) {
+
+                    area.innerHTML = '';
+
+                    if (data.length === 0) {
+                        area.innerHTML = '<p>0 results, dead end. <a href="#" onclick="toggleModal(true)" style="color:#1a0dab">Add this page?</a></p>';
+                        return;
+                    }
+
+                    // Render
+                    data.forEach((item, index) => {
+                        const domain = new URL(item.url).hostname;
+                        const div = document.createElement('div');
+                        div.className = 'res-item';
+                        div.id = `res-${index}`;
+                        div.innerHTML = `
+                            <div class="res-url-row">
+                                <span class="res-site-name">${domain}</span>
+                                <span style="color:#5f6368">•</span>
+                                <span class="res-clicks">${item.clicks} clicks</span>
+                            </div>
+                            <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${item.url}</a>
+                            <div class="res-snippet">surveying the landing site...</div>
+                        `;
+                        area.appendChild(div);
+
+                        // Lazy load metadata
+                        fetchMetadata(item.url, index);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    area.innerHTML = '<p style="color:#d93025">DB could not be reached. dumped in console".</p>';
+                });
+        }
+
+        // --- METADATA PROXY ---
+        function fetchMetadata(url, index) {
+            fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`)
+                .then(r => r.json())
+                .then(meta => {
+                    const el = document.getElementById(`res-${index}`);
+                    if (el && meta.title && meta.title !== "Site Unreachable") {
+                        el.querySelector('.res-title').innerText = meta.title;
                         el.querySelector('.res-snippet').innerText = meta.snippet;
                     }
-                }
-            } catch(e) { }
+                })
+                .catch(e => {}); // Silent fail on meta
         }
 
-        function track(url) {
-            fetch(GAS_URL, {
+        // --- ACTIONS (POST with text/plain to Fix CORS) ---
+        function trackClick(url) {
+            fetch(API_URL, {
                 method: 'POST',
+                headers: { "Content-Type": "text/plain" }, 
                 body: JSON.stringify({ action: 'click', url: url })
             });
         }
 
-        async function submitPage() {
-            const input = document.getElementById('newUrl');
+        function submitPage() {
+            const input = document.getElementById('newUrlInput');
             const url = input.value.trim();
-            
-            if(!url.startsWith('http')) {
-                showToast("Error: URL must start with http:// or https://");
+
+            if (!url.startsWith('http')) {
+                toast("Error: Unrecognized protocol- try http:// or https://");
                 return;
             }
 
-            closeModal();
-            showToast("Connecting to Community Drive...");
+            toggleModal(false);
+            toast("our copper, potatoes and magnesium powered antennas are now reaching out 2 the server! hang in there");
 
-            try {
-                await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'add', url: url })
-                });
-                showToast("Success! Page added.");
-                input.value = '';
-            } catch(e) {
-                showToast("Error: Could not add page.");
-            }
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: 'add', url: url })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if(d.success) {
+                    toast("Success! Page added.");
+                    input.value = '';
+                } else {
+                    toast("Error adding page.");
+                }
+            })
+            .catch(e => toast("that went wrong (Connection Failure)."));
         }
 
     </script>
