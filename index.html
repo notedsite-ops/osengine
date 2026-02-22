@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSearch - Community Web</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 1998-ish Brutalist Style */
+        body {
+            background-color: #C0C0C0;
+            font-family: "Courier New", Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+        }
+
+        a { color: #000080; text-decoration: underline; }
+        a:visited { color: #800080; }
+        a:hover { background-color: #000080; color: #FFF; }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #FFF;
+            border: 2px solid #000;
+            padding: 15px;
+            box-shadow: 5px 5px 0px #404040;
+        }
+
+        header {
+            border-bottom: 2px dashed #000;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+        .tagline { font-size: 12px; color: #555; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #eee;
+            padding: 5px;
+            border: 1px solid #999;
+        }
+
+        input[type="text"] {
+            font-family: inherit;
+            border: 1px solid #000;
+            padding: 5px;
+            width: 250px;
+        }
+
+        button {
+            font-family: inherit;
+            background: #CCC;
+            border: 2px outset #FFF;
+            border-right: 2px solid #444;
+            border-bottom: 2px solid #444;
+            cursor: pointer;
+            padding: 2px 8px;
+            font-weight: bold;
+        }
+        button:active { border-style: inset; }
+
+        /* Add Page Modal Area */
+        #addPageArea {
+            display: none;
+            background: #ffffe0;
+            border: 1px solid #000;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Results */
+        .result-item {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px dotted #999;
+        }
+
+        .result-meta {
+            font-size: 11px;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .result-snippet {
+            font-size: 13px;
+        }
+
+        .loading { color: #888; font-style: italic; }
+        
+        /* Stats */
+        .clicks-tag {
+            background: #000;
+            color: #FFF;
+            padding: 1px 4px;
+            font-size: 10px;
+            margin-right: 5px;
+        }
+
+        .toggles {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1><i class="fa-solid fa-globe"></i> OpenSearch</h1>
+            <div class="tagline">The raw web. No Sponsors. No AI.</div>
+        </div>
+        <button onclick="toggleAddPage()"><i class="fa-solid fa-plus"></i> Add Page</button>
+    </header>
+
+    <div id="addPageArea">
+        <b>Submit URL to Community Database:</b><br>
+        <input type="text" id="newUrlInput" placeholder="https://...">
+        <button onclick="submitNewPage()">Add</button>
+        <button onclick="toggleAddPage()">Cancel</button>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search for a page...">
+        <button onclick="performSearch()"><i class="fa-solid fa-search"></i> Go</button>
+        
+        <div class="toggles">
+            <label>
+                <input type="checkbox" id="sortClicks"> Show Top Clicks
+            </label>
+        </div>
+    </div>
+
+    <hr>
+
+    <div id="resultsArea">
+        <div style="text-align:center; padding: 20px;">
+            Ready to search the directory...
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    const API_URL = "YOUR_GAS_DEPLOYMENT_URL_HERE"; 
+    
+    // --- BLOCKLIST (Hide AI/Corp) ---
+    const BLOCKLIST = [
+        "openai.com", "chatgpt.com", "anthropic.com", "claude.ai", 
+        "midjourney.com", "google.com", "bing.com", "facebook.com", 
+        "amazon.com", "gemini.google.com"
+    ];
+
+    // --- INIT ---
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        if (query) {
+            document.getElementById('searchInput').value = query;
+            fetchResults(query);
+        }
+    };
+
+    function toggleAddPage() {
+        const el = document.getElementById('addPageArea');
+        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function performSearch() {
+        const query = document.getElementById('searchInput').value;
+        // Update URL bar without reload (SPA feel but with state)
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?q=' + encodeURIComponent(query);
+        window.history.pushState({path:newUrl},'',newUrl);
+        fetchResults(query);
+    }
+
+    async function fetchResults(query) {
+        const resultsArea = document.getElementById('resultsArea');
+        resultsArea.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Accessing Drive Database...</div>';
+
+        try {
+            // 1. Get List from Drive
+            const response = await fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`);
+            let data = await response.json();
+
+            // 2. Filter Blocklist (Client side safety)
+            data = data.filter(item => {
+                return !BLOCKLIST.some(blocked => item.url.includes(blocked));
+            });
+
+            // 3. Sort by Clicks if enabled
+            const sortByClicks = document.getElementById('sortClicks').checked;
+            if (sortByClicks) {
+                data.sort((a, b) => b.clicks - a.clicks);
+            }
+
+            if (data.length === 0) {
+                resultsArea.innerHTML = 'No results found in community drive.';
+                return;
+            }
+
+            resultsArea.innerHTML = ''; // Clear loading
+
+            // 4. Render Items & Fetch Metadata
+            data.forEach((item, index) => {
+                // Create skeleton structure
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.id = `res-${index}`;
+                
+                div.innerHTML = `
+                    <div class="result-meta">
+                        <span class="clicks-tag">[${item.clicks} Clicks]</span>
+                        <i class="fa-solid fa-link"></i> ${item.url}
+                    </div>
+                    <a href="${item.url}" class="result-title" target="_blank" onclick="trackClick('${item.url}')">
+                        ${item.url} (Loading Title...)
+                    </a>
+                    <div class="result-snippet text-muted">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:10px"></i> Fetching true-text...
+                    </div>
+                `;
+                resultsArea.appendChild(div);
+
+                // 5. Asynchronously fetch title/text for this specific item
+                fetchMetadata(item.url, index);
+            });
+
+        } catch (e) {
+            resultsArea.innerHTML = '<div style="color:red">Error connecting to database. Check GAS URL.</div>';
+            console.error(e);
+        }
+    }
+
+    // Connects to GAS to proxy the scrape
+    async function fetchMetadata(url, index) {
+        try {
+            const res = await fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`);
+            const meta = await res.json();
+            
+            const container = document.getElementById(`res-${index}`);
+            if (container) {
+                const titleLink = container.querySelector('.result-title');
+                const snippetDiv = container.querySelector('.result-snippet');
+                
+                titleLink.innerHTML = meta.title;
+                snippetDiv.innerHTML = meta.snippet;
+            }
+        } catch (e) {
+            console.log("Meta fetch failed for " + url);
+        }
+    }
+
+    // Increment click count in JSON
+    function trackClick(url) {
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'click', url: url })
+        });
+    }
+
+    // Add new page to JSON
+    async function submitNewPage() {
+        const url = document.getElementById('newUrlInput').value;
+        if (!url.startsWith('http')) {
+            alert("Please enter a full URL (http://...)");
+            return;
+        }
+
+        const btn = document.querySelector('#addPageArea button');
+        btn.innerText = "Adding...";
+        btn.disabled = true;
+
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'add', url: url })
+        });
+
+        alert("Page added to Google Drive Database!");
+        document.getElementById('newUrlInput').value = '';
+        btn.innerText = "Add";
+        btn.disabled = false;
+        toggleAddPage();
+    }
+</script>
+
+</body>
+</html>
