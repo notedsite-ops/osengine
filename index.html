@@ -3,304 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenSearch - Community Web</title>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>OpenSearch</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 1998-ish Brutalist Style */
+        :root {
+            --primary: #333;
+            --accent: #4285f4; /* Standard web blue */
+            --bg: #ffffff;
+            --text: #202124;
+            --gray: #dfe1e5;
+        }
+
         body {
-            background-color: #C0C0C0;
-            font-family: "Courier New", Courier, monospace;
+            font-family: arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 20px;
-            color: #000;
-        }
-
-        a { color: #000080; text-decoration: underline; }
-        a:visited { color: #800080; }
-        a:hover { background-color: #000080; color: #FFF; }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #FFF;
-            border: 2px solid #000;
-            padding: 15px;
-            box-shadow: 5px 5px 0px #404040;
-        }
-
-        header {
-            border-bottom: 2px dashed #000;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
+            padding: 0;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
-        .tagline { font-size: 12px; color: #555; }
-
-        /* Controls */
-        .controls {
+        /* --- NAVIGATION / CORNER BUTTONS --- */
+        .nav-header {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             display: flex;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
-            background: #eee;
-            padding: 5px;
-            border: 1px solid #999;
-        }
-
-        input[type="text"] {
-            font-family: inherit;
-            border: 1px solid #000;
-            padding: 5px;
-            width: 250px;
-        }
-
-        button {
-            font-family: inherit;
-            background: #CCC;
-            border: 2px outset #FFF;
-            border-right: 2px solid #444;
-            border-bottom: 2px solid #444;
-            cursor: pointer;
-            padding: 2px 8px;
-            font-weight: bold;
-        }
-        button:active { border-style: inset; }
-
-        /* Add Page Modal Area */
-        #addPageArea {
-            display: none;
-            background: #ffffe0;
-            border: 1px solid #000;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        /* Results */
-        .result-item {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px dotted #999;
-        }
-
-        .result-meta {
-            font-size: 11px;
-            color: #444;
-            margin-bottom: 4px;
-        }
-
-        .result-title {
-            font-size: 16px;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .result-snippet {
             font-size: 13px;
         }
 
-        .loading { color: #888; font-style: italic; }
-        
-        /* Stats */
-        .clicks-tag {
-            background: #000;
-            color: #FFF;
-            padding: 1px 4px;
-            font-size: 10px;
-            margin-right: 5px;
+        .nav-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .nav-btn:hover { background: #1557b0; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+        /* --- ADD PAGE MODAL --- */
+        #addPageModal {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 100;
+            width: 300px;
+        }
+        #addPageModal input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
-        .toggles {
-            margin-top: 5px;
-            font-size: 12px;
+        /* --- MAIN LAYOUT STATES --- */
+        /* State 1: Homepage (Centered) */
+        .layout-home {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh; /* Push it slightly up visually */
         }
+        .layout-home img.logo {
+            max-width: 300px; /* Text logo width */
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .layout-home .search-wrapper {
+            width: 580px;
+            max-width: 90%;
+        }
+
+        /* State 2: Results (Top Bar) */
+        .layout-results {
+            display: block;
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+        }
+        .layout-results .header-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .layout-results img.logo {
+            height: 30px; /* Smaller logo for header */
+            width: auto;
+            cursor: pointer;
+        }
+        .layout-results .search-wrapper {
+            width: 600px;
+            max-width: 70%;
+        }
+
+        /* --- SEARCH BAR COMPONENT --- */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--gray);
+            border-radius: 24px;
+            padding: 5px 15px;
+            background: white;
+            transition: box-shadow 0.2s;
+        }
+        .search-bar:hover, .search-bar:focus-within {
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+            border-color: rgba(223,225,229,0);
+        }
+        .search-bar i { color: #9aa0a6; margin-right: 10px; }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            height: 34px;
+        }
+        /* Toggle Switch for Clicks */
+        .options-row {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #5f6368;
+            display: flex;
+            justify-content: center; /* Centered on home */
+        }
+        .layout-results .options-row {
+            justify-content: flex-start; /* Left align on results */
+            margin-left: 150px; /* Align with search bar roughly */
+            padding-bottom: 0;
+        }
+
+        /* --- RESULTS AREA --- */
+        #resultsContainer {
+            max-width: 800px;
+            margin-left: 180px; /* Indent to match classic search engines */
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        /* Mobile adjustments for results */
+        @media(max-width: 768px) {
+            #resultsContainer { margin-left: 20px; margin-right: 20px; }
+            .layout-results .header-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .layout-results .search-wrapper { width: 100%; }
+            .layout-results .options-row { margin-left: 0; }
+        }
+
+        .result-card {
+            margin-bottom: 25px;
+            font-family: arial, sans-serif;
+        }
+        .result-url {
+            font-size: 12px;
+            color: #202124;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .result-clicks {
+            font-size: 11px;
+            color: #1a73e8;
+            background: #e8f0fe;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+        .result-title {
+            font-size: 20px;
+            color: #1a0dab;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .result-title:hover { text-decoration: underline; }
+        .result-snippet {
+            font-size: 14px;
+            color: #4d5156;
+            line-height: 1.58;
+            width: 100%;
+            max-width: 600px;
+        }
+        .loading { color: #70757a; font-style: italic; margin-top: 20px; }
+        
+        /* Toggle Slider Style */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 30px;
+            height: 17px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 17px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 13px;
+            width: 13px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2196F3; }
+        input:checked + .slider:before { transform: translateX(13px); }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div>
-            <h1><i class="fa-solid fa-globe"></i> OpenSearch</h1>
-            <div class="tagline">The raw web. No Sponsors. No AI.</div>
-        </div>
-        <button onclick="toggleAddPage()"><i class="fa-solid fa-plus"></i> Add Page</button>
-    </header>
-
-    <div id="addPageArea">
-        <b>Submit URL to Community Database:</b><br>
-        <input type="text" id="newUrlInput" placeholder="https://...">
-        <button onclick="submitNewPage()">Add</button>
-        <button onclick="toggleAddPage()">Cancel</button>
+    <!-- Top Right Controls -->
+    <div class="nav-header">
+        <button class="nav-btn" onclick="toggleAddPage()">
+            <i class="fa-solid fa-plus"></i> Add Page
+        </button>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search for a page...">
-        <button onclick="performSearch()"><i class="fa-solid fa-search"></i> Go</button>
+    <!-- Add Page Popup -->
+    <div id="addPageModal">
+        <div style="margin-bottom:8px; font-weight:bold;">Submit URL</div>
+        <input type="text" id="newUrlInput" placeholder="https://example.com">
+        <div style="text-align:right;">
+            <button onclick="toggleAddPage()" style="background:none; border:none; color:#555; cursor:pointer;">Cancel</button>
+            <button onclick="submitNewPage()" style="background:#1a73e8; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Add</button>
+        </div>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <div id="mainWrapper" class="layout-home">
         
-        <div class="toggles">
-            <label>
-                <input type="checkbox" id="sortClicks"> Show Top Clicks
+        <!-- Header / Logo Area -->
+        <div class="header-row">
+            <img src="os.png" alt="OpenSearch" class="logo" onclick="goHome()">
+            
+            <div class="search-wrapper">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search community web..." onkeydown="if(event.key==='Enter') performSearch()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Options (Sort Clicks) -->
+        <div class="options-row">
+            <label style="cursor:pointer; display:flex; align-items:center;">
+                <div class="switch">
+                    <input type="checkbox" id="sortClicks" onchange="if(document.body.classList.contains('has-results')) performSearch()">
+                    <span class="slider"></span>
+                </div>
+                Show Top Clicks
             </label>
         </div>
+
     </div>
 
-    <hr>
+    <!-- Results Output -->
+    <div id="resultsContainer"></div>
 
-    <div id="resultsArea">
-        <div style="text-align:center; padding: 20px;">
-            Ready to search the directory...
-        </div>
-    </div>
-</div>
+    <script>
+        /* 
+           CONFIGURATION
+           Using the Google Apps Script URL provided by the user.
+        */
+        const GAS_URL = "https://script.google.com/macros/s/AKfycby6J_8mE5QcRbL6YoEKI1Tcz0gu3SlWWfMRN8JhTJ7OGsJV22C8qx-kVUyZE88u_W6f/exec";
 
-<script>
-    // --- CONFIGURATION ---
-    const API_URL = "YOUR_GAS_DEPLOYMENT_URL_HERE"; 
-    
-    // --- BLOCKLIST (Hide AI/Corp) ---
-    const BLOCKLIST = [
-        "openai.com", "chatgpt.com", "anthropic.com", "claude.ai", 
-        "midjourney.com", "google.com", "bing.com", "facebook.com", 
-        "amazon.com", "gemini.google.com"
-    ];
+        /* BLOCKLIST: Filter out Big AI / Tech Corps */
+        const BLOCKLIST = [
+            "openai", "chatgpt", "anthropic", "claude", "midjourney", 
+            "google.com", "bing.com", "facebook.com", "amazon.com", "gemini"
+        ];
 
-    // --- INIT ---
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const query = urlParams.get('q');
-        if (query) {
-            document.getElementById('searchInput').value = query;
+        // On Load: Check URL parameters
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get('q');
+            if (query) {
+                document.getElementById('searchInput').value = query;
+                performSearch(query);
+            }
+        };
+
+        function goHome() {
+            window.location.href = window.location.pathname;
+        }
+
+        function toggleAddPage() {
+            const modal = document.getElementById('addPageModal');
+            modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function performSearch(forcedQuery = null) {
+            const query = forcedQuery || document.getElementById('searchInput').value;
+            if (!query) return;
+
+            // 1. Switch Layout to Results View
+            const wrapper = document.getElementById('mainWrapper');
+            wrapper.classList.remove('layout-home');
+            wrapper.classList.add('layout-results');
+            document.body.classList.add('has-results');
+
+            // Update Browser URL
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?q=' + encodeURIComponent(query);
+            window.history.pushState({path:newUrl},'',newUrl);
+
             fetchResults(query);
         }
-    };
 
-    function toggleAddPage() {
-        const el = document.getElementById('addPageArea');
-        el.style.display = el.style.display === 'block' ? 'none' : 'block';
-    }
+        async function fetchResults(query) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Searching database...</div>';
 
-    function performSearch() {
-        const query = document.getElementById('searchInput').value;
-        // Update URL bar without reload (SPA feel but with state)
-        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?q=' + encodeURIComponent(query);
-        window.history.pushState({path:newUrl},'',newUrl);
-        fetchResults(query);
-    }
+            try {
+                // Fetch from GAS
+                const response = await fetch(`${GAS_URL}?action=search&q=${encodeURIComponent(query)}`);
+                let data = await response.json();
 
-    async function fetchResults(query) {
-        const resultsArea = document.getElementById('resultsArea');
-        resultsArea.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Accessing Drive Database...</div>';
+                // Client-side Blocklist Filter
+                data = data.filter(item => !BLOCKLIST.some(b => item.url.toLowerCase().includes(b)));
 
-        try {
-            // 1. Get List from Drive
-            const response = await fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`);
-            let data = await response.json();
+                // Sort by Clicks if toggled
+                if (document.getElementById('sortClicks').checked) {
+                    data.sort((a, b) => b.clicks - a.clicks);
+                }
 
-            // 2. Filter Blocklist (Client side safety)
-            data = data.filter(item => {
-                return !BLOCKLIST.some(blocked => item.url.includes(blocked));
-            });
+                container.innerHTML = ''; // Clear loading
 
-            // 3. Sort by Clicks if enabled
-            const sortByClicks = document.getElementById('sortClicks').checked;
-            if (sortByClicks) {
-                data.sort((a, b) => b.clicks - a.clicks);
+                if (data.length === 0) {
+                    container.innerHTML = '<div style="margin-top:20px; color:#555">No results found in the community database. <br><a href="#" onclick="toggleAddPage()">Add this page?</a></div>';
+                    return;
+                }
+
+                // Render Skeletons
+                data.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'result-card';
+                    div.id = `result-${index}`;
+                    div.innerHTML = `
+                        <div class="result-url">
+                            <i class="fa-regular fa-file-lines"></i>
+                            ${new URL(item.url).hostname}
+                            <span class="result-clicks">${item.clicks} clicks</span>
+                        </div>
+                        <a href="${item.url}" target="_blank" class="result-title" onclick="trackClick('${item.url}')">
+                            ${item.url}
+                        </a>
+                        <div class="result-snippet">
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size:12px; color:#ccc;"></i> Loading content...
+                        </div>
+                    `;
+                    container.appendChild(div);
+
+                    // Lazy fetch metadata
+                    fetchMetadata(item.url, index);
+                });
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div style="color:red">Error connecting to community node.</div>';
             }
+        }
 
-            if (data.length === 0) {
-                resultsArea.innerHTML = 'No results found in community drive.';
+        async function fetchMetadata(url, index) {
+            try {
+                // Call GAS as proxy to fetch Title/Text
+                const res = await fetch(`${GAS_URL}?action=metadata&url=${encodeURIComponent(url)}`);
+                const meta = await res.json();
+                
+                const card = document.getElementById(`result-${index}`);
+                if (card) {
+                    if(meta.title && meta.title !== "Site Unreachable") {
+                        card.querySelector('.result-title').innerText = meta.title;
+                    }
+                    if(meta.snippet) {
+                        card.querySelector('.result-snippet').innerText = meta.snippet;
+                    }
+                }
+            } catch (e) {
+                // Keep default URL as title if fail
+            }
+        }
+
+        function trackClick(url) {
+            // Fire and forget click tracking
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'click', url: url })
+            });
+        }
+
+        async function submitNewPage() {
+            const urlInput = document.getElementById('newUrlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url.startsWith('http')) {
+                alert("Please include http:// or https://");
                 return;
             }
 
-            resultsArea.innerHTML = ''; // Clear loading
+            const btn = document.querySelector('#addPageModal button:last-child');
+            const oldText = btn.innerText;
+            btn.innerText = "Saving...";
+            btn.disabled = true;
 
-            // 4. Render Items & Fetch Metadata
-            data.forEach((item, index) => {
-                // Create skeleton structure
-                const div = document.createElement('div');
-                div.className = 'result-item';
-                div.id = `res-${index}`;
-                
-                div.innerHTML = `
-                    <div class="result-meta">
-                        <span class="clicks-tag">[${item.clicks} Clicks]</span>
-                        <i class="fa-solid fa-link"></i> ${item.url}
-                    </div>
-                    <a href="${item.url}" class="result-title" target="_blank" onclick="trackClick('${item.url}')">
-                        ${item.url} (Loading Title...)
-                    </a>
-                    <div class="result-snippet text-muted">
-                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:10px"></i> Fetching true-text...
-                    </div>
-                `;
-                resultsArea.appendChild(div);
-
-                // 5. Asynchronously fetch title/text for this specific item
-                fetchMetadata(item.url, index);
-            });
-
-        } catch (e) {
-            resultsArea.innerHTML = '<div style="color:red">Error connecting to database. Check GAS URL.</div>';
-            console.error(e);
-        }
-    }
-
-    // Connects to GAS to proxy the scrape
-    async function fetchMetadata(url, index) {
-        try {
-            const res = await fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`);
-            const meta = await res.json();
-            
-            const container = document.getElementById(`res-${index}`);
-            if (container) {
-                const titleLink = container.querySelector('.result-title');
-                const snippetDiv = container.querySelector('.result-snippet');
-                
-                titleLink.innerHTML = meta.title;
-                snippetDiv.innerHTML = meta.snippet;
+            try {
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'add', url: url })
+                });
+                alert("Page added to OpenSearch database.");
+                urlInput.value = "";
+                toggleAddPage();
+            } catch(e) {
+                alert("Error adding page.");
             }
-        } catch (e) {
-            console.log("Meta fetch failed for " + url);
+            
+            btn.innerText = oldText;
+            btn.disabled = false;
         }
-    }
-
-    // Increment click count in JSON
-    function trackClick(url) {
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'click', url: url })
-        });
-    }
-
-    // Add new page to JSON
-    async function submitNewPage() {
-        const url = document.getElementById('newUrlInput').value;
-        if (!url.startsWith('http')) {
-            alert("Please enter a full URL (http://...)");
-            return;
-        }
-
-        const btn = document.querySelector('#addPageArea button');
-        btn.innerText = "Adding...";
-        btn.disabled = true;
-
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'add', url: url })
-        });
-
-        alert("Page added to Google Drive Database!");
-        document.getElementById('newUrlInput').value = '';
-        btn.innerText = "Add";
-        btn.disabled = false;
-        toggleAddPage();
-    }
-</script>
-
+    </script>
 </body>
 </html>
