@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenSearch</title>
-    <!-- Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -51,13 +51,13 @@
         }
         .top-btn:hover { opacity: 1; text-decoration: underline; }
 
-        /* --- MAIN APP CONTAINER --- */
+        /* --- APP CONTAINER --- */
         #app {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-top: 35px; /* Offset for topbar */
+            margin-top: 35px;
             min-height: calc(100vh - 35px);
             transition: all 0.3s ease;
         }
@@ -83,7 +83,7 @@
             border-radius: 24px;
             padding: 10px 15px;
             background: #fff;
-            height: 24px; /* visual height matches google */
+            height: 24px;
         }
         .search-box:hover, .search-box:focus-within {
             box-shadow: 0 1px 6px rgba(32,33,36,0.28);
@@ -98,28 +98,31 @@
             margin-left: 10px;
         }
 
-        /* Slider Controls */
-        .controls {
-            margin-top: 18px;
+        /* --- FILTERS TAB --- */
+        .filters-tab {
+            margin-top: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 10px;
+            gap: 25px;
             font-size: 13px;
             color: #5f6368;
+            padding: 10px;
         }
-        
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .info {
             margin-top: 25px;
             font-size: 12px;
             color: #333;
             max-width: 400px;
             line-height: 1.5;
-            background: #f8f9fa;
             padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #eee;
-            display: inline-block;
+            text-align: center;
         }
 
         /* --- RESULTS STATE (Triggered by JS) --- */
@@ -134,7 +137,7 @@
             align-items: center;
             width: 100%;
             border-bottom: 1px solid #ebebeb;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
             padding-left: 20px;
             margin-bottom: 0;
             max-width: 100%;
@@ -152,9 +155,9 @@
             height: 24px;
         }
 
-        body.results-mode .controls {
-            margin-top: 0;
-            margin-left: 20px;
+        body.results-mode .filters-tab {
+            margin: 0 0 0 20px;
+            padding: 0;
         }
         
         body.results-mode .info { display: none; }
@@ -162,7 +165,7 @@
         /* --- RESULTS LIST --- */
         #resultsArea {
             display: none;
-            padding-left: 165px; /* Classic indent */
+            padding-left: 165px;
             padding-top: 20px;
             padding-bottom: 50px;
             max-width: 650px;
@@ -172,27 +175,48 @@
         @media(max-width: 800px) {
             body.results-mode .search-wrapper { flex-direction: column; align-items: flex-start; gap: 15px; }
             #resultsArea { padding-left: 20px; padding-right: 20px; }
+            body.results-mode .filters-tab { margin-left: 0; margin-top: 10px; }
         }
 
-        .res-item { margin-bottom: 26px; }
+        .res-item { margin-bottom: 30px; }
         
-        .res-url-row {
+        .res-meta-row {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
             font-size: 12px;
             color: #202124;
             margin-bottom: 4px;
         }
         
         .res-site-name { font-weight: bold; color: #202124; }
-        .res-clicks { 
-            background: #f1f3f4; 
-            color: #444; 
-            padding: 2px 6px; 
-            border-radius: 4px; 
+        
+        .res-stats {
             font-size: 11px;
+            color: #5f6368;
+            background: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
+
+        /* Vote Controls */
+        .vote-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 5px;
+        }
+        .vote-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9aa0a6;
+            font-size: 14px;
+            padding: 0;
+            transition: color 0.2s;
+        }
+        .vote-btn:hover { color: #1a0dab; }
+        .vote-count { font-weight: bold; font-size: 11px; min-width: 15px; text-align: center; }
 
         .res-title {
             color: var(--link-blue);
@@ -247,7 +271,7 @@
         .btn-cancel { background: transparent; color: #1a73e8; margin-right: 10px; }
         .btn-save { background: #1a73e8; color: white; }
 
-        /* --- TOAST NOTIFICATION --- */
+        /* --- TOAST --- */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -267,7 +291,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- TOGGLE SWITCH --- */
+        /* --- SWITCH --- */
         .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -294,23 +318,34 @@
                 <input type="text" id="searchInput" placeholder="search openweb..." onkeydown="if(event.key==='Enter') performSearch()">
             </div>
 
-            <div class="controls">
-                <span>sort by clicks</span>
-                <label class="switch">
-                    <input type="checkbox" id="sortClicks" onchange="if(document.body.classList.contains('results-mode')) performSearch()">
-                    <span class="slider"></span>
-                </label>
+            <!-- FILTERS TAB -->
+            <div class="filters-tab">
+                <div class="filter-item">
+                    <span>Sort Votes</span>
+                    <label class="switch">
+                        <!-- Votes On By Default -->
+                        <input type="checkbox" id="sortVotes" checked onchange="handleSort('votes')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="filter-item">
+                    <span>Sort Clicks</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sortClicks" onchange="handleSort('clicks')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
 
             <div class="info">
-                <p class="text">opensearch is powered by YOU! search without cranking up the freaking ram prices. i speak for all of us when i say <bold>EVERYONE</bold> would like that. especially me. i will never afford a laptop in this economy..</p>
+                <p class="text">opensearch is powered by YOU! search without cranking up the freaking ram prices. i speak for all of us when i say <b>EVERYONE</b> would like that.</p>
             </div>
         </div>
 
         <div id="resultsArea"></div>
     </div>
 
-    <!-- ADD MODAL -->
+    <!-- MODAL -->
     <div id="modalOverlay">
         <div class="modal-box">
             <h3>Add URL to Index</h3>
@@ -327,16 +362,14 @@
     <div id="toast">Message</div>
 
     <script>
-        // --- YOUR NEW GAS URL ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbz0isEi2gWkl2tJX_7qdj4GWlFID-zbI8rA2VFLuoHJbnzBYBfrd8T7shJfV426Wtb6Zw/exec";
+        // *** CONFIGURATION ***
+        const API_URL = "https://script.google.com/macros/s/AKfycbzsAtk4fFJl3WxqMKJ1NqpL7Ius13dtpSXhefo3F3Kfa_HW9hBsoGBfSLRofe__17Z7Qg/exec";
 
-        // Filter Blocklist
         const BLOCKLIST = [
             "openai", "chatgpt", "anthropic", "claude", "midjourney", 
             "google.com", "bing.com", "facebook.com", "gemini"
         ];
 
-        // Init
         window.onload = function() {
             const q = new URLSearchParams(window.location.search).get('q');
             if (q) {
@@ -364,12 +397,24 @@
             setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
         }
 
-        // --- SEARCH LOGIC ---
+        // Handle Toggle Logic (Only one active at a time)
+        function handleSort(type) {
+            const votes = document.getElementById('sortVotes');
+            const clicks = document.getElementById('sortClicks');
+
+            if(type === 'votes' && votes.checked) clicks.checked = false;
+            if(type === 'clicks' && clicks.checked) votes.checked = false;
+            
+            // If user unchecks both, default back to votes
+            if(!votes.checked && !clicks.checked) votes.checked = true;
+
+            if(document.body.classList.contains('results-mode')) performSearch();
+        }
+
         function performSearch(forcedQuery = null) {
             const query = forcedQuery || document.getElementById('searchInput').value;
             if (!query.trim()) return;
 
-            // UI Switch
             document.body.classList.add('results-mode');
             const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
             window.history.pushState({path:newUrl}, '', newUrl);
@@ -377,70 +422,71 @@
             const area = document.getElementById('resultsArea');
             area.innerHTML = '<div style="color:#70757a; padding-top:20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> searching...</div>';
 
-            // Fetch
             fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`)
                 .then(r => r.json())
                 .then(data => {
-                    // Filter
                     data = data.filter(item => !BLOCKLIST.some(b => item.url.toLowerCase().includes(b)));
 
-                    // Sort
-                    if(document.getElementById('sortClicks').checked) {
-                        data.sort((a,b) => b.clicks - a.clicks);
+                    // SORTING
+                    if(document.getElementById('sortVotes').checked) {
+                        data.sort((a,b) => (b.votes || 0) - (a.votes || 0));
+                    } else if(document.getElementById('sortClicks').checked) {
+                        data.sort((a,b) => (b.clicks || 0) - (a.clicks || 0));
                     }
 
                     area.innerHTML = '';
-
                     if (data.length === 0) {
-                        area.innerHTML = '<p>0 results, dead end. <a href="#" onclick="toggleModal(true)" style="color:#1a0dab">Add this page?</a></p>';
+                        area.innerHTML = '<p>0 results. <a href="#" onclick="toggleModal(true)" style="color:#1a0dab">Add this page?</a></p>';
                         return;
                     }
 
-                    // Render
                     data.forEach((item, index) => {
                         const domain = new URL(item.url).hostname;
-                        
-                        // USE TITLE FROM DB IF AVAILABLE
                         const displayTitle = item.title ? item.title : item.url;
-                        // IF TITLE IS FROM DB, DON'T SHOW "LOADING" IN SNIPPET (Unless we want snippet text)
-                        const snippetText = item.title ? "surveying the landing site..." : "surveying the landing site...";
+                        const votes = item.votes || 0;
+                        const voteColor = votes > 0 ? '#188038' : (votes < 0 ? '#d93025' : '#5f6368');
 
                         const div = document.createElement('div');
                         div.className = 'res-item';
                         div.id = `res-${index}`;
                         div.innerHTML = `
-                            <div class="res-url-row">
+                            <div class="res-meta-row">
                                 <span class="res-site-name">${domain}</span>
-                                <span style="color:#5f6368">•</span>
-                                <span class="res-clicks">${item.clicks} clicks</span>
+                                <span class="res-stats">${item.clicks || 0} clicks</span>
+                                
+                                <div class="vote-box">
+                                    <button class="vote-btn" onclick="vote('${item.url}', 1, 'v-${index}')">
+                                        <i class="fa-solid fa-thumbs-up"></i>
+                                    </button>
+                                    <span id="v-${index}" class="vote-count" style="color:${voteColor}">${votes}</span>
+                                    <button class="vote-btn" onclick="vote('${item.url}', -1, 'v-${index}')">
+                                        <i class="fa-solid fa-thumbs-down"></i>
+                                    </button>
+                                </div>
                             </div>
                             <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${displayTitle}</a>
-                            <div class="res-snippet">${snippetText}</div>
+                            <div class="res-snippet">surveying the landing site...</div>
                         `;
                         area.appendChild(div);
-
-                        // Lazy load metadata (snippet text, and title if missing)
+                        
+                        // Metadata fetch also Updates Titles in DB
                         fetchMetadata(item.url, index, !!item.title);
                     });
                 })
                 .catch(err => {
-                    console.error(err);
-                    area.innerHTML = '<p style="color:#d93025">DB could not be reached. dumped in console".</p>';
+                    area.innerHTML = '<p style="color:#d93025">Connection failed.</p>';
                 });
         }
 
-        // --- METADATA PROXY ---
         function fetchMetadata(url, index, hasTitle) {
             fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`)
                 .then(r => r.json())
                 .then(meta => {
                     const el = document.getElementById(`res-${index}`);
                     if (el) {
-                        // Only update title if we didn't have one from DB
                         if (!hasTitle && meta.title && meta.title !== "Site Unreachable") {
                             el.querySelector('.res-title').innerText = meta.title;
                         }
-                        // Always try to update snippet
                         if (meta.snippet) {
                             el.querySelector('.res-snippet').innerText = meta.snippet;
                         }
@@ -449,7 +495,6 @@
                 .catch(e => {}); 
         }
 
-        // --- ACTIONS (POST with text/plain to Fix CORS) ---
         function trackClick(url) {
             fetch(API_URL, {
                 method: 'POST',
@@ -458,18 +503,31 @@
             });
         }
 
+        function vote(url, val, spanId) {
+            // Optimistic UI Update
+            const span = document.getElementById(spanId);
+            let current = parseInt(span.innerText);
+            let newVal = current + val;
+            
+            span.innerText = newVal;
+            span.style.color = newVal > 0 ? '#188038' : (newVal < 0 ? '#d93025' : '#5f6368');
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain" }, 
+                body: JSON.stringify({ action: 'vote', url: url, value: val })
+            });
+        }
+
         function submitPage() {
             const input = document.getElementById('newUrlInput');
             const url = input.value.trim();
-
             if (!url.startsWith('http')) {
-                toast("Error: Unrecognized protocol- try http:// or https://");
+                toast("Error: Use http:// or https://");
                 return;
             }
-
             toggleModal(false);
-            toast("our copper, potatoes and magnesium powered antennas are now reaching out 2 the server! hang in there");
-
+            toast("Sending signal...");
             fetch(API_URL, {
                 method: 'POST',
                 headers: { "Content-Type": "text/plain" },
@@ -477,16 +535,11 @@
             })
             .then(r => r.json())
             .then(d => {
-                if(d.success) {
-                    toast("Success! Page added.");
-                    input.value = '';
-                } else {
-                    toast("Error adding page.");
-                }
+                if(d.success) { toast("Success! Page added."); input.value = ''; }
+                else { toast("Error adding page."); }
             })
-            .catch(e => toast("that went wrong (Connection Failure)."));
+            .catch(e => toast("Connection Failure."));
         }
-
     </script>
 </body>
 </html>
