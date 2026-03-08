@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSearch</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Windows 7 Default Wallpaper Style */
+            background: url('https://img.freepik.com/free-vector/abstract-blue-light-pipe-speed-zoom-black-background-technology_1142-9878.jpg?w=1380&t=st=1686600000~exp=1686600600~hmac=...') no-repeat center center fixed; /* Fallback */
+            background: radial-gradient(circle at 50% 50%, #1e5799 0%, #2989d8 50%, #207cca 51%, #7db9e8 100%); /* Aero Blue */
+            background-size: cover;
+            color: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- AERO GLASS TOP BAR --- */
+        .topbar {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            height: 40px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .top-btn {
+            background: linear-gradient(to bottom, #f2f2f2 0%, #d4d4d4 100%);
+            border: 1px solid #707070;
+            color: #333;
+            font-family: "Segoe UI";
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .top-btn:hover {
+            background: linear-gradient(to bottom, #e0f4fc 0%, #bce2f5 100%);
+            border-color: #3c7fb1;
+            box-shadow: inset 0 1px 0 #fff, 0 0 3px #59b1e4;
+        }
+
+        /* --- APP CONTAINER --- */
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+            min-height: calc(100vh - 40px);
+            transition: all 0.3s ease;
+        }
+
+        /* --- LOGO --- */
+        #logo {
+            max-width: 272px;
+            height: auto;
+            margin-bottom: 25px;
+            cursor: pointer;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* --- GLASS SEARCH PANE --- */
+        .search-wrapper {
+            width: 600px;
+            max-width: 90%;
+            text-align: center;
+            /* Aero Glass Pane */
+            background: rgba(240, 240, 240, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.3);
+            padding: 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #7F9DB9; /* Classic Windows Border */
+            border-radius: 2px;
+            padding: 5px;
+            height: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .search-box:focus-within {
+            border-color: #3c7fb1; /* Win7 Highlight Blue */
+            box-shadow: 0 0 0 2px rgba(60, 127, 177, 0.3);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-family: "Segoe UI";
+            font-size: 15px;
+            margin-left: 10px;
+            color: #000;
+        }
+
+        /* --- COMMAND BAR (FILTERS) --- */
+        .filters-tab {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            background: linear-gradient(to bottom, #fcfcfc 0%, #e8e8e8 100%);
+            border: 1px solid #aebac6;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #333;
+            text-shadow: 0 1px 0 #fff;
+        }
+
+        /* --- INFO TEXT --- */
+        .info {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #fff;
+            max-width: 400px;
+            line-height: 1.5;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        /* --- RESULTS MODE --- */
+        body.results-mode {
+            background: #fff; /* White background for readability like Explorer */
+            background-image: none;
+        }
+
+        body.results-mode .topbar {
+            background: linear-gradient(to bottom, #eef3fa 0%, #d8e6f7 100%);
+            border-bottom: 1px solid #bccbe3;
+        }
+        body.results-mode .top-btn { border-color: #8ba0bc; }
+
+        body.results-mode #app {
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding-top: 25px;
+            background: #fff;
+        }
+
+        body.results-mode .search-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border-bottom: 1px solid #d9d9d9;
+            padding: 15px 20px;
+            margin-bottom: 0;
+            max-width: 100%;
+            border-radius: 0;
+            background: #f5f8fd; /* Explorer Header Blue */
+            box-shadow: none;
+        }
+
+        body.results-mode #logo {
+            height: 30px;
+            width: auto;
+            margin-bottom: 0;
+            margin-right: 20px;
+        }
+
+        body.results-mode .search-box { width: 500px; height: 26px; }
+
+        body.results-mode .filters-tab {
+            margin: 0 0 0 20px;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+        
+        body.results-mode .info { display: none; }
+
+        /* --- LOADING ANIMATION --- */
+        .loading-container {
+            text-align: center;
+            padding-top: 40px;
+            color: #666;
+            display: none;
+        }
+        .loading-gif { width: 40px; height: 40px; }
+
+        /* --- RESULTS LIST --- */
+        #resultsArea {
+            display: none;
+            padding-left: 150px;
+            padding-top: 20px;
+            padding-bottom: 50px;
+            max-width: 700px;
+        }
+        body.results-mode #resultsArea { display: block; }
+
+        @media(max-width: 800px) {
+            body.results-mode .search-wrapper { flex-direction: column; align-items: flex-start; gap: 10px; }
+            #resultsArea { padding-left: 20px; padding-right: 20px; }
+            body.results-mode .filters-tab { margin-left: 0; margin-top: 5px; }
+            .search-wrapper { width: 95%; }
+        }
+
+        .res-item { margin-bottom: 25px; font-family: "Segoe UI", sans-serif; }
+        
+        .res-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #006621;
+            margin-bottom: 2px;
+        }
+        
+        .res-site-name { font-weight: bold; }
+        
+        .res-stats {
+            color: #666;
+            background: #eef3fa;
+            border: 1px solid #d0d9ea;
+            padding: 1px 5px;
+            border-radius: 2px;
+        }
+
+        /* Vote UI */
+        .vote-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 5px;
+        }
+        .vote-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 14px;
+            padding: 0;
+            transition: all 0.2s;
+        }
+        .vote-btn:hover { color: #1e5799; transform: scale(1.1); }
+        .vote-count { font-weight: bold; font-size: 12px; min-width: 15px; text-align: center; }
+
+        .res-title {
+            color: #1a0dab;
+            font-size: 18px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .res-title:hover { text-decoration: underline; }
+
+        .res-snippet {
+            color: #545454;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        /* --- MODAL (Windows 7 Dialog) --- */
+        #modalOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-box {
+            background: #f0f0f0;
+            border: 1px solid #999;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            width: 400px;
+            border-radius: 6px;
+            padding: 0;
+            font-family: "Segoe UI";
+            overflow: hidden;
+        }
+        .modal-header {
+            background: linear-gradient(to bottom, #eef3fa 0%, #d8e6f7 100%);
+            padding: 8px 15px;
+            border-bottom: 1px solid #bccbe3;
+            font-weight: bold;
+            color: #1e395b;
+            display: flex;
+            justify-content: space-between;
+        }
+        .modal-body {
+            padding: 20px;
+            background: #fff;
+            text-align: center;
+        }
+        .modal-footer {
+            background: #f0f0f0;
+            padding: 10px;
+            border-top: 1px solid #dfdfdf;
+            text-align: right;
+        }
+        .modal-body input {
+            width: 90%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+        }
+
+        /* Win7 Buttons */
+        .win-btn {
+            background: linear-gradient(to bottom, #f2f2f2 0%, #d4d4d4 100%);
+            border: 1px solid #707070;
+            border-radius: 3px;
+            padding: 4px 15px;
+            cursor: pointer;
+            font-family: "Segoe UI";
+            min-width: 70px;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .win-btn:hover {
+            background: linear-gradient(to bottom, #e0f4fc 0%, #bce2f5 100%);
+            border-color: #3c7fb1;
+            box-shadow: inset 0 1px 0 #fff, 0 0 3px #59b1e4;
+        }
+        .win-btn-primary {
+            border: 1px solid #3c7fb1;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+        }
+
+        /* --- TOAST --- */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 3000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* --- SWITCH --- */
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; border: 1px solid #999; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        input:checked + .slider { background: linear-gradient(to bottom, #4a9e2a 0%, #2f8e1e 100%); border-color: #206113; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <div class="topbar">
+        <button class="top-btn" onclick="toggleModal(true)">add page</button>
+    </div>
+
+    <!-- APP -->
+    <div id="app">
+        <img src="os.png" alt="OpenSearch" id="logo" onclick="resetHome()">
+        
+        <div class="search-wrapper">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass" style="color:#7F9DB9;"></i>
+                <input type="text" id="searchInput" placeholder="search openweb..." onkeydown="if(event.key==='Enter') performSearch()">
+            </div>
+
+            <!-- FILTERS TAB -->
+            <div class="filters-tab">
+                <div class="filter-item">
+                    <span>Sort Votes</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sortVotes" checked onchange="handleSort('votes')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="filter-item">
+                    <span>Sort Clicks</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sortClicks" onchange="handleSort('clicks')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="info">
+                <p class="text">opensearch is powered by YOU! search without cranking up the freaking ram prices. i speak for all of us when i say <b>EVERYONE</b> would like that.</p>
+            </div>
+        </div>
+
+        <div id="loading" class="loading-container">
+            <img src="https://media.tenor.com/ggWF2p1Xu_IAAAAj/loading-windows.gif" class="loading-gif" alt="Loading...">
+        </div>
+
+        <div id="resultsArea"></div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>Add URL to Index</span>
+                <span style="cursor:pointer" onclick="toggleModal(false)">X</span>
+            </div>
+            <div class="modal-body">
+                <p style="color:#333; font-size:13px; margin:0;">Help grow the community database.</p>
+                <input type="text" id="newUrlInput" placeholder="https://example.com">
+            </div>
+            <div class="modal-footer">
+                <button class="win-btn" onclick="toggleModal(false)">Cancel</button>
+                <button class="win-btn win-btn-primary" onclick="submitPage()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast">Message</div>
+
+    <script>
+        // *** CONFIGURATION ***
+        const API_URL = "https://script.google.com/macros/s/AKfycbzsAtk4fFJl3WxqMKJ1NqpL7Ius13dtpSXhefo3F3Kfa_HW9hBsoGBfSLRofe__17Z7Qg/exec";
+
+        const BLOCKLIST = [
+            "openai", "chatgpt", "anthropic", "claude", "midjourney", 
+            "google.com", "bing.com", "facebook.com", "gemini"
+        ];
+
+        window.onload = function() {
+            const q = new URLSearchParams(window.location.search).get('q');
+            if (q) {
+                document.getElementById('searchInput').value = q;
+                performSearch(q);
+            }
+        };
+
+        function resetHome() {
+            document.body.classList.remove('results-mode');
+            document.getElementById('resultsArea').innerHTML = '';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+            window.history.pushState({}, '', window.location.pathname);
+        }
+
+        function toggleModal(show) {
+            document.getElementById('modalOverlay').style.display = show ? 'flex' : 'none';
+            if(show) document.getElementById('newUrlInput').focus();
+        }
+
+        function toast(msg) {
+            const t = document.getElementById("toast");
+            t.innerText = msg;
+            t.className = "show";
+            setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+        }
+
+        function handleSort(type) {
+            const votes = document.getElementById('sortVotes');
+            const clicks = document.getElementById('sortClicks');
+
+            if(type === 'votes' && votes.checked) clicks.checked = false;
+            if(type === 'clicks' && clicks.checked) votes.checked = false;
+            
+            if(!votes.checked && !clicks.checked) votes.checked = true;
+
+            if(document.body.classList.contains('results-mode')) performSearch();
+        }
+
+        function performSearch(forcedQuery = null) {
+            const query = forcedQuery || document.getElementById('searchInput').value;
+            if (!query.trim()) return;
+
+            document.body.classList.add('results-mode');
+            const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
+            window.history.pushState({path:newUrl}, '', newUrl);
+
+            const area = document.getElementById('resultsArea');
+            const loader = document.getElementById('loading');
+            
+            area.innerHTML = '';
+            loader.style.display = 'block';
+
+            fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    data = data.filter(item => !BLOCKLIST.some(b => item.url.toLowerCase().includes(b)));
+
+                    if(document.getElementById('sortVotes').checked) {
+                        data.sort((a,b) => (b.votes || 0) - (a.votes || 0));
+                    } else if(document.getElementById('sortClicks').checked) {
+                        data.sort((a,b) => (b.clicks || 0) - (a.clicks || 0));
+                    }
+
+                    loader.style.display = 'none';
+
+                    if (data.length === 0) {
+                        area.innerHTML = '<p>0 results. <a href="#" onclick="toggleModal(true)" style="color:#1a0dab">Add this page?</a></p>';
+                        return;
+                    }
+
+                    data.forEach((item, index) => {
+                        const domain = new URL(item.url).hostname;
+                        const displayTitle = item.title ? item.title : item.url;
+                        const votes = item.votes || 0;
+                        const voteColor = votes > 0 ? '#188038' : (votes < 0 ? '#d93025' : '#5f6368');
+
+                        const div = document.createElement('div');
+                        div.className = 'res-item';
+                        div.id = `res-${index}`;
+                        div.innerHTML = `
+                            <div class="res-meta-row">
+                                <span class="res-site-name">${domain}</span>
+                                <span class="res-stats">${item.clicks || 0} clicks</span>
+                                
+                                <div class="vote-box">
+                                    <button class="vote-btn" onclick="vote('${item.url}', 1, 'v-${index}')">
+                                        <i class="fa-solid fa-thumbs-up"></i>
+                                    </button>
+                                    <span id="v-${index}" class="vote-count" style="color:${voteColor}">${votes}</span>
+                                    <button class="vote-btn" onclick="vote('${item.url}', -1, 'v-${index}')">
+                                        <i class="fa-solid fa-thumbs-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${displayTitle}</a>
+                            <div class="res-snippet">surveying the landing site...</div>
+                        `;
+                        area.appendChild(div);
+                        fetchMetadata(item.url, index, !!item.title);
+                    });
+                })
+                .catch(err => {
+                    loader.style.display = 'none';
+                    area.innerHTML = '<p style="color:#d93025">Connection failed.</p>';
+                });
+        }
+
+        function fetchMetadata(url, index, hasTitle) {
+            fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`)
+                .then(r => r.json())
+                .then(meta => {
+                    const el = document.getElementById(`res-${index}`);
+                    if (el) {
+                        if (!hasTitle && meta.title && meta.title !== "Site Unreachable") {
+                            el.querySelector('.res-title').innerText = meta.title;
+                        }
+                        if (meta.snippet) {
+                            el.querySelector('.res-snippet').innerText = meta.snippet;
+                        }
+                    }
+                })
+                .catch(e => {}); 
+        }
+
+        function trackClick(url) {
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain" }, 
+                body: JSON.stringify({ action: 'click', url: url })
+            });
+        }
+
+        function vote(url, val, spanId) {
+            const span = document.getElementById(spanId);
+            let current = parseInt(span.innerText);
+            let newVal = current + val;
+            
+            span.innerText = newVal;
+            span.style.color = newVal > 0 ? '#188038' : (newVal < 0 ? '#d93025' : '#5f6368');
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain" }, 
+                body: JSON.stringify({ action: 'vote', url: url, value: val })
+            });
+        }
+
+        function submitPage() {
+            const input = document.getElementById('newUrlInput');
+            const url = input.value.trim();
+            if (!url.startsWith('http')) {
+                toast("Error: Use http:// or https://");
+                return;
+            }
+            toggleModal(false);
+            toast("our copper, potatoes and magnesium powered antennas are now reaching out 2 the server! hang in there");
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: 'add', url: url })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if(d.success) { toast("Success! Page added."); input.value = ''; }
+                else { toast("Error adding page."); }
+            })
+            .catch(e => toast("that went wrong (Connection Failure)."));
+        }
+    </script>
+</body>
+</html>
