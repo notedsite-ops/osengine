@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenSearch</title>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            /* Authentic Windows 7 Aero Blue Gradient */
             background: radial-gradient(circle at 50% 30%, #4492ce 0%, #206da7 40%, #154c79 100%);
             background-attachment: fixed;
             color: #1e1e1e;
@@ -21,7 +19,7 @@
             overflow-y: scroll;
         }
 
-        /* --- AERO GLASS TOP BAR --- */
+        /* --- TOP BAR --- */
         .topbar {
             background: rgba(10, 20, 40, 0.4);
             border-bottom: 1px solid rgba(255, 255, 255, 0.25);
@@ -36,7 +34,6 @@
             position: fixed;
             top: 0;
             z-index: 1000;
-            box-sizing: border-box;
         }
 
         .top-btn {
@@ -51,10 +48,7 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
             transition: all 0.2s;
         }
-        .top-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
+        .top-btn:hover { background: rgba(255, 255, 255, 0.25); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
         /* --- APP CONTAINER --- */
         #app {
@@ -76,12 +70,11 @@
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
         }
 
-        /* --- GLASS SEARCH WINDOW (HOME) --- */
+        /* --- HOME SEARCH WRAPPER --- */
         .search-wrapper {
             width: 580px;
             max-width: 90%;
             text-align: center;
-            /* Polished Aero Glass Look */
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%);
             border: 1px solid rgba(255, 255, 255, 0.65);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -127,65 +120,39 @@
             box-sizing: border-box;
         }
 
-        /* --- LOADING BOX ("Gathering Results...") --- */
-        .loading-container {
-            margin-top: 40px;
-            display: none;
-            flex-direction: column;
+        /* --- FULL WIDTH LOADING BAR (Windows 7 Style) --- */
+        #loadingBar {
+            position: fixed;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to bottom, #f0f4fa 0%, #dae5f5 100%);
+            border-bottom: 1px solid #9fb4d2;
+            display: none; /* Hidden default */
             align-items: center;
             justify-content: center;
-            
-            /* Gradient Box Style */
-            background: linear-gradient(to bottom, #f0f4fa 0%, #dae5f5 100%);
-            border: 1px solid #9fb4d2;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            padding: 20px 40px;
-            border-radius: 8px;
-            width: 300px;
+            gap: 10px;
+            z-index: 900;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .loading-text {
-            margin-top: 10px;
-            color: #1e395b;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .loading-gif { width: 32px; height: 32px; }
-
+        .loading-gif { width: 20px; height: 20px; }
+        .loading-text { font-size: 13px; color: #333; font-weight: 600; text-shadow: 0 1px 0 #fff; }
 
         /* ============================ */
         /*      RESULTS MODE STYLES     */
         /* ============================ */
         
-        body.results-mode {
-            background: #fff; /* White background requested */
-            background-image: none;
-        }
-
-        body.results-mode .topbar {
-            background: linear-gradient(to bottom, #f0f4fa 0%, #dae5f5 100%);
-            border-bottom: 1px solid #b5c7de;
-            box-shadow: none;
-        }
+        body.results-mode { background: #fff; background-image: none; }
+        body.results-mode .topbar { background: linear-gradient(to bottom, #f0f4fa 0%, #dae5f5 100%); border-bottom: 1px solid #b5c7de; box-shadow: none; }
         body.results-mode .top-btn { color: #333; background: transparent; border-color: #8ba0bc; }
         body.results-mode .top-btn:hover { background: #eef5fb; border-color: #3399ff; }
-
         body.results-mode #app { justify-content: flex-start; align-items: flex-start; padding-top: 25px; }
 
         body.results-mode .search-wrapper {
-            flex-direction: row;
-            width: 100%;
-            max-width: 100%;
-            border: none;
-            border-bottom: 1px solid #d9d9d9;
-            padding: 15px 20px;
-            margin: 0;
-            border-radius: 0;
-            background: #f5f7fa;
-            box-shadow: none;
-            gap: 20px;
-            backdrop-filter: none;
+            flex-direction: row; width: 100%; max-width: 100%; border: none; border-bottom: 1px solid #d9d9d9;
+            padding: 15px 20px; margin: 0; border-radius: 0; background: #f5f7fa; box-shadow: none; gap: 20px; backdrop-filter: none;
         }
-
         body.results-mode #logo { height: 32px; width: auto; margin: 0; filter: none; }
         body.results-mode .search-box { width: 500px; height: 32px; box-shadow: none; }
         body.results-mode .filters-tab { width: auto; gap: 20px; padding: 0; }
@@ -210,46 +177,42 @@
             .search-wrapper { width: 95%; padding: 20px; }
         }
 
-        /* --- AERO GLASSY TABS (Result Items) --- */
+        /* --- RESULT ITEMS (Animation) --- */
         .res-item { 
             margin-bottom: 20px; 
             font-family: arial, sans-serif;
-            
-            /* Glassy Tab Look */
             background: linear-gradient(to bottom, #ffffff 0%, #f7f9fc 100%);
             border: 1px solid #dcdcdc;
             border-radius: 6px;
             padding: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: opacity 0.8s ease; /* Slow fade in */
-            opacity: 0; /* Hidden by default */
+            /* Important: Hidden by default, takes NO space */
+            display: none; 
         }
 
-        .res-item.visible { opacity: 1; }
-
-        .res-item:hover {
-            border-color: #3399ff;
-            box-shadow: 0 2px 8px rgba(51, 153, 255, 0.15);
+        /* Animation class added via JS */
+        .scale-in {
+            animation: popIn 0.4s ease forwards;
         }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(-15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .res-item:hover { border-color: #3399ff; box-shadow: 0 2px 8px rgba(51, 153, 255, 0.15); }
         
         .res-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #202124; margin-bottom: 6px; }
         .res-site-name { font-weight: bold; color: #202124; }
-        
-        .res-stats {
-            color: #444;
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-        }
+        .res-stats { color: #444; background: #fff; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 
-        .vote-box {
-            display: flex; align-items: center; gap: 6px; margin-left: auto; /* Push to right */
-            background: #fff; padding: 2px 8px; border-radius: 12px; border: 1px solid #eee;
-        }
+        .vote-box { display: flex; align-items: center; gap: 6px; margin-left: auto; background: #fff; padding: 2px 8px; border-radius: 12px; border: 1px solid #eee; }
         .vote-btn { background: none; border: none; cursor: pointer; color: #9aa0a6; font-size: 13px; padding: 0; transition: all 0.2s; }
-        .vote-btn:hover { color: #1a0dab; transform: scale(1.1); }
+        .vote-btn:hover:not(:disabled) { color: #1a0dab; transform: scale(1.1); }
+        
+        /* Disabled State for Vote Buttons */
+        .vote-btn:disabled { color: #e0e0e0; cursor: not-allowed; }
+
         .vote-count { font-weight: bold; font-size: 12px; min-width: 18px; text-align: center; }
 
         .res-title {
@@ -263,53 +226,20 @@
             font-weight: 500;
         }
         .res-title:hover { text-decoration: underline; }
-
         .res-snippet { color: #4d5156; font-size: 13px; line-height: 1.5; }
 
         /* --- MODAL --- */
         #modalOverlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(2px);
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px);
         }
-        .modal-box {
-            background: #f0f0f0;
-            border: 1px solid #888;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 420px;
-            border-radius: 6px;
-            overflow: hidden;
-            font-family: "Segoe UI";
-        }
-        .modal-header {
-            background: linear-gradient(to bottom, #f6f9fc 0%, #dce6f4 100%);
-            padding: 10px 15px;
-            border-bottom: 1px solid #aebac6;
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            justify-content: space-between;
-        }
+        .modal-box { background: #f0f0f0; border: 1px solid #888; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 420px; border-radius: 6px; overflow: hidden; font-family: "Segoe UI"; }
+        .modal-header { background: linear-gradient(to bottom, #f6f9fc 0%, #dce6f4 100%); padding: 10px 15px; border-bottom: 1px solid #aebac6; font-weight: 600; color: #333; display: flex; justify-content: space-between; }
         .modal-body { padding: 25px; background: #fff; text-align: center; }
         .modal-footer { background: #f0f0f0; padding: 12px; border-top: 1px solid #ddd; text-align: right; }
         .modal-body input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; margin: 15px 0 5px 0; box-sizing: border-box; }
 
-        /* Win7 Buttons */
-        .win-btn {
-            background: linear-gradient(to bottom, #fcfcfc 0%, #e3e3e3 100%);
-            border: 1px solid #8e8e8e;
-            border-radius: 3px;
-            padding: 5px 18px;
-            cursor: pointer;
-            font-family: "Segoe UI";
-            min-width: 80px;
-            color: #333;
-        }
+        .win-btn { background: linear-gradient(to bottom, #fcfcfc 0%, #e3e3e3 100%); border: 1px solid #8e8e8e; border-radius: 3px; padding: 5px 18px; cursor: pointer; font-family: "Segoe UI"; min-width: 80px; color: #333; }
         .win-btn:hover { background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 100%); border-color: #3c7fb1; }
         .win-btn-primary { border: 1px solid #3c7fb1; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5); font-weight: 600; }
 
@@ -347,6 +277,12 @@
         <button class="top-btn" onclick="toggleModal(true)">+ Add Page</button>
     </div>
 
+    <!-- Full Width Loading Bar -->
+    <div id="loadingBar">
+        <img src="https://media.tenor.com/ggWF2p1Xu_IAAAAj/loading-windows.gif" class="loading-gif" alt="Loading...">
+        <div class="loading-text">Gathering results...</div>
+    </div>
+
     <div id="app">
         <img src="os.png" alt="OpenSearch" id="logo" onclick="resetHome()">
         
@@ -378,15 +314,10 @@
             </div>
         </div>
 
-        <!-- Gradient Loading Box -->
-        <div id="loading" class="loading-container">
-            <img src="https://media.tenor.com/ggWF2p1Xu_IAAAAj/loading-windows.gif" class="loading-gif" alt="Loading...">
-            <div class="loading-text">Gathering results...</div>
-        </div>
-
         <div id="resultsArea"></div>
     </div>
 
+    <!-- ADD MODAL -->
     <div id="modalOverlay">
         <div class="modal-box">
             <div class="modal-header">
@@ -412,6 +343,10 @@
 
         const BLOCKLIST = ["openai", "chatgpt", "anthropic", "claude", "midjourney", "google.com", "bing.com", "facebook.com", "gemini"];
 
+        // State for Loading Bar Logic
+        let totalItemsToLoad = 0;
+        let loadedItemsCount = 0;
+
         window.onload = function() {
             const q = new URLSearchParams(window.location.search).get('q');
             if (q) {
@@ -423,7 +358,7 @@
         function resetHome() {
             document.body.classList.remove('results-mode');
             document.getElementById('resultsArea').innerHTML = '';
-            document.getElementById('loading').style.display = 'none';
+            document.getElementById('loadingBar').style.display = 'none';
             document.getElementById('searchInput').value = '';
             window.history.pushState({}, '', window.location.pathname);
         }
@@ -457,101 +392,131 @@
             window.history.pushState({path:newUrl}, '', newUrl);
 
             const area = document.getElementById('resultsArea');
-            const loader = document.getElementById('loading');
+            const loadingBar = document.getElementById('loadingBar');
             
             // Clear current view
             area.innerHTML = '';
             
-            // Show "Gathering results..." gradient box
-            loader.style.display = 'flex';
+            // Show Top Loading Bar
+            loadingBar.style.display = 'flex';
+            loadedItemsCount = 0;
 
             fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`)
                 .then(r => r.json())
                 .then(data => {
                     data = data.filter(item => !BLOCKLIST.some(b => item.url.toLowerCase().includes(b)));
 
+                    // Sort Data
                     if(document.getElementById('sortVotes').checked) {
                         data.sort((a,b) => (b.votes || 0) - (a.votes || 0));
                     } else if(document.getElementById('sortClicks').checked) {
                         data.sort((a,b) => (b.clicks || 0) - (a.clicks || 0));
                     }
 
-                    // Hide main loader
-                    loader.style.display = 'none';
-
                     if (data.length === 0) {
+                        loadingBar.style.display = 'none';
                         area.innerHTML = '<p>0 results found. <a href="#" onclick="toggleModal(true)" style="color:#1a0dab">Add this page?</a></p>';
                         return;
                     }
 
+                    // Set total for loading logic
+                    totalItemsToLoad = data.length;
+
+                    // Create hidden containers for all items (PRESERVES SORT ORDER IN DOM)
                     data.forEach((item, index) => {
                         const domain = new URL(item.url).hostname;
-                        const displayTitle = item.title ? item.title : item.url;
                         const votes = item.votes || 0;
                         const voteColor = votes > 0 ? '#188038' : (votes < 0 ? '#d93025' : '#5f6368');
 
                         const div = document.createElement('div');
-                        div.className = 'res-item'; // Default hidden via CSS (opacity: 0)
+                        div.className = 'res-item'; // display: none by default
                         div.id = `res-${index}`;
                         
+                        // SKELETON (Title and snippet blank initially)
                         div.innerHTML = `
                             <div class="res-meta-row">
                                 <span class="res-site-name">${domain}</span>
                                 <span class="res-stats">${item.clicks || 0} clicks</span>
                                 
                                 <div class="vote-box">
-                                    <button class="vote-btn" onclick="vote('${item.url}', 1, 'v-${index}')">
+                                    <button class="vote-btn" onclick="vote('${item.url}', 1, 'v-${index}', this)">
                                         <i class="fa-solid fa-thumbs-up"></i>
                                     </button>
                                     <span id="v-${index}" class="vote-count" style="color:${voteColor}">${votes}</span>
-                                    <button class="vote-btn" onclick="vote('${item.url}', -1, 'v-${index}')">
+                                    <button class="vote-btn" onclick="vote('${item.url}', -1, 'v-${index}', this)">
                                         <i class="fa-solid fa-thumbs-down"></i>
                                     </button>
                                 </div>
                             </div>
-                            <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${displayTitle}</a>
-                            <div class="res-snippet">
-                                <i class="fa-solid fa-circle-notch fa-spin" style="color:#999; font-size:12px;"></i> Loading preview...
-                            </div>
+                            <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">Loading...</a>
+                            <div class="res-snippet">...</div>
                         `;
                         area.appendChild(div);
                         
-                        // Fetch meta; triggers fade-in on success
-                        fetchMetadata(item.url, index, !!item.title);
+                        // Fetch meta asynchronously
+                        // Using '!!item.title' to use existing title if search already returned it (faster load)
+                        fetchMetadata(item.url, index, item.title);
                     });
                 })
                 .catch(err => {
-                    loader.style.display = 'none';
+                    loadingBar.style.display = 'none';
                     area.innerHTML = '<p style="color:#d93025">Connection failed.</p>';
                 });
         }
 
-        function fetchMetadata(url, index, hasTitle) {
+        function fetchMetadata(url, index, existingTitle) {
+            // Check if we already have the title from the initial search payload
+            // If we do, we can show it almost immediately without waiting for the second fetch
+            if(existingTitle) {
+                const el = document.getElementById(`res-${index}`);
+                if(el) {
+                    el.querySelector('.res-title').innerText = existingTitle;
+                    // Still fetch snippet though
+                }
+            }
+
             fetch(`${API_URL}?action=metadata&url=${encodeURIComponent(url)}`)
                 .then(r => r.json())
                 .then(meta => {
                     const el = document.getElementById(`res-${index}`);
                     if (el) {
                         // Update content
-                        if (!hasTitle && meta.title && meta.title !== "Site Unreachable") {
+                        if (meta.title && meta.title !== "Site Unreachable") {
                             el.querySelector('.res-title').innerText = meta.title;
+                        } else if (!existingTitle) {
+                            el.querySelector('.res-title').innerText = url;
                         }
+
                         if (meta.snippet) {
                             el.querySelector('.res-snippet').innerText = meta.snippet;
                         }
                         
-                        // TRIGGER FADE IN
-                        el.classList.add('visible');
+                        // REVEAL ITEM (Slide In)
+                        el.style.display = "block";
+                        el.classList.add('scale-in');
+                        
+                        checkLoadingComplete();
                     }
                 })
                 .catch(e => {
-                    // Even on error, show the result so it doesn't stay hidden forever
+                    // Show anyway on error
                     const el = document.getElementById(`res-${index}`);
                     if(el) {
+                        if(!existingTitle) el.querySelector('.res-title').innerText = url;
                         el.querySelector('.res-snippet').innerText = "Preview unavailable.";
-                        el.classList.add('visible');
+                        el.style.display = "block";
+                        el.classList.add('scale-in');
+                        checkLoadingComplete();
                     }
                 }); 
+        }
+
+        function checkLoadingComplete() {
+            loadedItemsCount++;
+            if(loadedItemsCount >= totalItemsToLoad) {
+                // All items have loaded/failed, hide loading bar
+                document.getElementById('loadingBar').style.display = 'none';
+            }
         }
 
         function trackClick(url) {
@@ -562,7 +527,13 @@
             });
         }
 
-        function vote(url, val, spanId) {
+        function vote(url, val, spanId, btnElement) {
+            // 1. Lock UI immediately
+            const parent = btnElement.parentElement;
+            const buttons = parent.querySelectorAll('.vote-btn');
+            buttons.forEach(b => b.disabled = true); // Disable both buttons
+
+            // 2. Optimistic Update
             const span = document.getElementById(spanId);
             let current = parseInt(span.innerText);
             let newVal = current + val;
@@ -570,6 +541,7 @@
             span.innerText = newVal;
             span.style.color = newVal > 0 ? '#188038' : (newVal < 0 ? '#d93025' : '#5f6368');
 
+            // 3. Send to Backend
             fetch(API_URL, {
                 method: 'POST',
                 headers: { "Content-Type": "text/plain" }, 
