@@ -18,7 +18,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            overflow-y: scroll; /* Always show scrollbar to prevent layout jump */
+            overflow-y: scroll;
         }
 
         /* --- AERO GLASS TOP BAR --- */
@@ -68,9 +68,8 @@
             width: 100%;
         }
 
-        /* --- LOGO --- */
         #logo {
-            max-width: 320px; /* Slightly larger for emphasis */
+            max-width: 320px;
             height: auto;
             margin-bottom: 30px;
             cursor: pointer;
@@ -82,14 +81,10 @@
             width: 580px;
             max-width: 90%;
             text-align: center;
-            
             /* Polished Aero Glass Look */
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%);
             border: 1px solid rgba(255, 255, 255, 0.65);
-            box-shadow: 
-                0 10px 25px rgba(0, 0, 0, 0.25), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-            
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
             padding: 30px 40px;
             border-radius: 12px;
             backdrop-filter: blur(10px);
@@ -112,42 +107,12 @@
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
             transition: border 0.2s, box-shadow 0.2s;
         }
-        
-        .search-box:focus-within {
-            border-color: #3399ff;
-            box-shadow: 0 0 0 2px rgba(51, 153, 255, 0.3);
-        }
+        .search-box:focus-within { border-color: #3399ff; box-shadow: 0 0 0 2px rgba(51, 153, 255, 0.3); }
+        .search-box input { border: none; outline: none; flex: 1; font-family: "Segoe UI", sans-serif; font-size: 16px; margin-left: 10px; color: #333; }
 
-        .search-box input {
-            border: none;
-            outline: none;
-            flex: 1;
-            font-family: "Segoe UI", sans-serif;
-            font-size: 16px;
-            margin-left: 10px;
-            color: #333;
-        }
+        .filters-tab { display: flex; justify-content: center; gap: 30px; width: 100%; padding-top: 5px; }
+        .filter-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; color: #333; text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
 
-        /* --- FILTERS (Cleaned Up) --- */
-        .filters-tab {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            width: 100%;
-            padding-top: 5px;
-        }
-
-        .filter-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #333;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.6);
-        }
-
-        /* --- INFO TEXT --- */
         .info {
             margin-top: 10px;
             font-size: 13px;
@@ -162,21 +127,37 @@
             box-sizing: border-box;
         }
 
-        /* --- LOADING ANIMATION --- */
+        /* --- LOADING BOX ("Gathering Results...") --- */
         .loading-container {
-            text-align: center;
-            padding-top: 50px;
+            margin-top: 40px;
             display: none;
-            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            /* Gradient Box Style */
+            background: linear-gradient(to bottom, #f0f4fa 0%, #dae5f5 100%);
+            border: 1px solid #9fb4d2;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 20px 40px;
+            border-radius: 8px;
+            width: 300px;
         }
-        .loading-gif { width: 40px; height: 40px; }
+        .loading-text {
+            margin-top: 10px;
+            color: #1e395b;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .loading-gif { width: 32px; height: 32px; }
+
 
         /* ============================ */
         /*      RESULTS MODE STYLES     */
         /* ============================ */
         
         body.results-mode {
-            background: #fff; /* Clean white for results */
+            background: #fff; /* White background requested */
             background-image: none;
         }
 
@@ -185,24 +166,12 @@
             border-bottom: 1px solid #b5c7de;
             box-shadow: none;
         }
-        body.results-mode .top-btn { 
-            color: #333;
-            background: transparent;
-            border-color: #8ba0bc; 
-        }
-        body.results-mode .top-btn:hover {
-            background: #eef5fb;
-            border-color: #3399ff;
-        }
+        body.results-mode .top-btn { color: #333; background: transparent; border-color: #8ba0bc; }
+        body.results-mode .top-btn:hover { background: #eef5fb; border-color: #3399ff; }
 
-        body.results-mode #app {
-            justify-content: flex-start;
-            align-items: flex-start;
-            padding-top: 25px;
-        }
+        body.results-mode #app { justify-content: flex-start; align-items: flex-start; padding-top: 25px; }
 
         body.results-mode .search-wrapper {
-            /* Transform wrapper into header bar */
             flex-direction: row;
             width: 100%;
             max-width: 100%;
@@ -217,31 +186,15 @@
             backdrop-filter: none;
         }
 
-        body.results-mode #logo {
-            height: 32px;
-            width: auto;
-            margin: 0;
-            filter: none;
-        }
-
-        body.results-mode .search-box { 
-            width: 500px; 
-            height: 32px;
-            box-shadow: none;
-        }
-
-        body.results-mode .filters-tab {
-            width: auto;
-            gap: 20px;
-            padding: 0;
-        }
-        
+        body.results-mode #logo { height: 32px; width: auto; margin: 0; filter: none; }
+        body.results-mode .search-box { width: 500px; height: 32px; box-shadow: none; }
+        body.results-mode .filters-tab { width: auto; gap: 20px; padding: 0; }
         body.results-mode .info { display: none; }
 
         /* --- RESULTS LIST --- */
         #resultsArea {
             display: none;
-            padding-left: 170px; /* Classic search indent */
+            padding-left: 170px;
             padding-top: 25px;
             padding-bottom: 50px;
             max-width: 700px;
@@ -257,67 +210,63 @@
             .search-wrapper { width: 95%; padding: 20px; }
         }
 
-        .res-item { margin-bottom: 28px; font-family: arial, sans-serif; }
-        
-        .res-meta-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #202124;
-            margin-bottom: 4px;
+        /* --- AERO GLASSY TABS (Result Items) --- */
+        .res-item { 
+            margin-bottom: 20px; 
+            font-family: arial, sans-serif;
+            
+            /* Glassy Tab Look */
+            background: linear-gradient(to bottom, #ffffff 0%, #f7f9fc 100%);
+            border: 1px solid #dcdcdc;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: opacity 0.8s ease; /* Slow fade in */
+            opacity: 0; /* Hidden by default */
+        }
+
+        .res-item.visible { opacity: 1; }
+
+        .res-item:hover {
+            border-color: #3399ff;
+            box-shadow: 0 2px 8px rgba(51, 153, 255, 0.15);
         }
         
+        .res-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #202124; margin-bottom: 6px; }
         .res-site-name { font-weight: bold; color: #202124; }
         
         .res-stats {
             color: #444;
-            background: #f1f3f4;
+            background: #fff;
+            border: 1px solid #ccc;
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 11px;
         }
 
-        /* Vote UI */
         .vote-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-left: 8px;
-            background: #fff;
-            padding: 2px 6px;
-            border-radius: 10px;
-            border: 1px solid #eee;
+            display: flex; align-items: center; gap: 6px; margin-left: auto; /* Push to right */
+            background: #fff; padding: 2px 8px; border-radius: 12px; border: 1px solid #eee;
         }
-        .vote-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #9aa0a6;
-            font-size: 13px;
-            padding: 0;
-            transition: all 0.2s;
-        }
+        .vote-btn { background: none; border: none; cursor: pointer; color: #9aa0a6; font-size: 13px; padding: 0; transition: all 0.2s; }
         .vote-btn:hover { color: #1a0dab; transform: scale(1.1); }
         .vote-count { font-weight: bold; font-size: 12px; min-width: 18px; text-align: center; }
 
         .res-title {
             color: #1a0dab;
-            font-size: 20px;
+            font-size: 18px;
             text-decoration: none;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             line-height: 1.3;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-weight: 500;
         }
         .res-title:hover { text-decoration: underline; }
 
-        .res-snippet {
-            color: #4d5156;
-            font-size: 14px;
-            line-height: 1.58;
-        }
+        .res-snippet { color: #4d5156; font-size: 13px; line-height: 1.5; }
 
-        /* --- MODAL (Windows 7 Dialog) --- */
+        /* --- MODAL --- */
         #modalOverlay {
             display: none;
             position: fixed;
@@ -336,10 +285,7 @@
             border-radius: 6px;
             overflow: hidden;
             font-family: "Segoe UI";
-            animation: popIn 0.2s ease-out;
         }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
         .modal-header {
             background: linear-gradient(to bottom, #f6f9fc 0%, #dce6f4 100%);
             padding: 10px 15px;
@@ -349,26 +295,9 @@
             display: flex;
             justify-content: space-between;
         }
-        .modal-body {
-            padding: 25px;
-            background: #fff;
-            text-align: center;
-        }
-        .modal-footer {
-            background: #f0f0f0;
-            padding: 12px;
-            border-top: 1px solid #ddd;
-            text-align: right;
-        }
-        .modal-body input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            margin: 15px 0 5px 0;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
+        .modal-body { padding: 25px; background: #fff; text-align: center; }
+        .modal-footer { background: #f0f0f0; padding: 12px; border-top: 1px solid #ddd; text-align: right; }
+        .modal-body input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; margin: 15px 0 5px 0; box-sizing: border-box; }
 
         /* Win7 Buttons */
         .win-btn {
@@ -381,34 +310,14 @@
             min-width: 80px;
             color: #333;
         }
-        .win-btn:hover {
-            background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 100%);
-            border-color: #3c7fb1;
-            box-shadow: 0 0 2px rgba(60, 127, 177, 0.5);
-        }
-        .win-btn-primary {
-            border: 1px solid #3c7fb1;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
-            font-weight: 600;
-        }
+        .win-btn:hover { background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 100%); border-color: #3c7fb1; }
+        .win-btn-primary { border: 1px solid #3c7fb1; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5); font-weight: 600; }
 
         /* --- TOAST --- */
         #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 4px;
-            padding: 14px 20px;
-            position: fixed;
-            z-index: 3000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            border: 1px solid #555;
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
+            border-radius: 4px; padding: 14px 20px; position: fixed; z-index: 3000; left: 50%; bottom: 30px;
+            transform: translateX(-50%); font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #555;
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
@@ -425,25 +334,19 @@
         }
         .slider:before { 
             position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; 
-            background: #fff; transition: .3s; border-radius: 50%; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3); 
+            background: #fff; transition: .3s; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.3); 
         }
-        input:checked + .slider { 
-            background: linear-gradient(to bottom, #4a9e2a 0%, #2f8e1e 100%); 
-            border-color: #206113; 
-        }
+        input:checked + .slider { background: linear-gradient(to bottom, #4a9e2a 0%, #2f8e1e 100%); border-color: #206113; }
         input:checked + .slider:before { transform: translateX(16px); }
 
     </style>
 </head>
 <body>
 
-    <!-- NAV -->
     <div class="topbar">
         <button class="top-btn" onclick="toggleModal(true)">+ Add Page</button>
     </div>
 
-    <!-- APP -->
     <div id="app">
         <img src="os.png" alt="OpenSearch" id="logo" onclick="resetHome()">
         
@@ -453,7 +356,6 @@
                 <input type="text" id="searchInput" placeholder="Search the open web..." onkeydown="if(event.key==='Enter') performSearch()">
             </div>
 
-            <!-- FILTERS TAB -->
             <div class="filters-tab">
                 <div class="filter-item">
                     <span>Sort Votes</span>
@@ -476,14 +378,15 @@
             </div>
         </div>
 
+        <!-- Gradient Loading Box -->
         <div id="loading" class="loading-container">
             <img src="https://media.tenor.com/ggWF2p1Xu_IAAAAj/loading-windows.gif" class="loading-gif" alt="Loading...">
+            <div class="loading-text">Gathering results...</div>
         </div>
 
         <div id="resultsArea"></div>
     </div>
 
-    <!-- MODAL -->
     <div id="modalOverlay">
         <div class="modal-box">
             <div class="modal-header">
@@ -501,17 +404,13 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div id="toast">Message</div>
 
     <script>
         // *** CONFIGURATION ***
         const API_URL = "https://script.google.com/macros/s/AKfycbzsAtk4fFJl3WxqMKJ1NqpL7Ius13dtpSXhefo3F3Kfa_HW9hBsoGBfSLRofe__17Z7Qg/exec";
 
-        const BLOCKLIST = [
-            "openai", "chatgpt", "anthropic", "claude", "midjourney", 
-            "google.com", "bing.com", "facebook.com", "gemini"
-        ];
+        const BLOCKLIST = ["openai", "chatgpt", "anthropic", "claude", "midjourney", "google.com", "bing.com", "facebook.com", "gemini"];
 
         window.onload = function() {
             const q = new URLSearchParams(window.location.search).get('q');
@@ -536,20 +435,16 @@
 
         function toast(msg) {
             const t = document.getElementById("toast");
-            t.innerText = msg;
-            t.className = "show";
+            t.innerText = msg; t.className = "show";
             setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
         }
 
         function handleSort(type) {
-            const votes = document.getElementById('sortVotes');
-            const clicks = document.getElementById('sortClicks');
-
-            if(type === 'votes' && votes.checked) clicks.checked = false;
-            if(type === 'clicks' && clicks.checked) votes.checked = false;
-            
-            if(!votes.checked && !clicks.checked) votes.checked = true;
-
+            const v = document.getElementById('sortVotes');
+            const c = document.getElementById('sortClicks');
+            if(type === 'votes' && v.checked) c.checked = false;
+            if(type === 'clicks' && c.checked) v.checked = false;
+            if(!v.checked && !c.checked) v.checked = true;
             if(document.body.classList.contains('results-mode')) performSearch();
         }
 
@@ -564,8 +459,11 @@
             const area = document.getElementById('resultsArea');
             const loader = document.getElementById('loading');
             
+            // Clear current view
             area.innerHTML = '';
-            loader.style.display = 'block';
+            
+            // Show "Gathering results..." gradient box
+            loader.style.display = 'flex';
 
             fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`)
                 .then(r => r.json())
@@ -578,6 +476,7 @@
                         data.sort((a,b) => (b.clicks || 0) - (a.clicks || 0));
                     }
 
+                    // Hide main loader
                     loader.style.display = 'none';
 
                     if (data.length === 0) {
@@ -592,8 +491,9 @@
                         const voteColor = votes > 0 ? '#188038' : (votes < 0 ? '#d93025' : '#5f6368');
 
                         const div = document.createElement('div');
-                        div.className = 'res-item';
+                        div.className = 'res-item'; // Default hidden via CSS (opacity: 0)
                         div.id = `res-${index}`;
+                        
                         div.innerHTML = `
                             <div class="res-meta-row">
                                 <span class="res-site-name">${domain}</span>
@@ -610,9 +510,13 @@
                                 </div>
                             </div>
                             <a href="${item.url}" class="res-title" target="_blank" onclick="trackClick('${item.url}')">${displayTitle}</a>
-                            <div class="res-snippet">surveying the landing site...</div>
+                            <div class="res-snippet">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color:#999; font-size:12px;"></i> Loading preview...
+                            </div>
                         `;
                         area.appendChild(div);
+                        
+                        // Fetch meta; triggers fade-in on success
                         fetchMetadata(item.url, index, !!item.title);
                     });
                 })
@@ -628,15 +532,26 @@
                 .then(meta => {
                     const el = document.getElementById(`res-${index}`);
                     if (el) {
+                        // Update content
                         if (!hasTitle && meta.title && meta.title !== "Site Unreachable") {
                             el.querySelector('.res-title').innerText = meta.title;
                         }
                         if (meta.snippet) {
                             el.querySelector('.res-snippet').innerText = meta.snippet;
                         }
+                        
+                        // TRIGGER FADE IN
+                        el.classList.add('visible');
                     }
                 })
-                .catch(e => {}); 
+                .catch(e => {
+                    // Even on error, show the result so it doesn't stay hidden forever
+                    const el = document.getElementById(`res-${index}`);
+                    if(el) {
+                        el.querySelector('.res-snippet').innerText = "Preview unavailable.";
+                        el.classList.add('visible');
+                    }
+                }); 
         }
 
         function trackClick(url) {
